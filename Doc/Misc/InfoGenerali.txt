@@ -1,0 +1,4 @@
+Per riuscire ad acquisire i dati realtime da un'applicativo esterno è necessaria la licenza .NET 
+
+	https://developer.dewesoft.com/questions/export-data-in-real-time-to-python
+
