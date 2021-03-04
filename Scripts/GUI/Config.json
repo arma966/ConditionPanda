@@ -7,6 +7,5 @@
 	"org": "myorg",
 	"bucket": "Prova",
 	"RawBucket": "Prova1",
-	"sensorName": "AI 1",
 	"clientURL": "http://localhost:8086"
 }

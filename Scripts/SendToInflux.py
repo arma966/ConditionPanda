@@ -1,6 +1,7 @@
-from os import listdir, getcwd, remove
+from os import listdir, remove
 from shutil import rmtree
-from os.path import isfile, isdir, join 
+from os.path import isfile, isdir, join, realpath, dirname
+from json import load
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import ASYNCHRONOUS
 
@@ -18,10 +19,10 @@ def statToInflux(fileList):
         tags = [
             "data=stat",
             "Machine=Motor1",
-            "Sensor=Acc1"
+            "Sensor="+sensorName
             ]
         
-        fileName = join(mypath,fileList[i])
+        fileName = join(fileDir,fileList[i])
         
         # Convert to line protocol
         LPfile = au.buildLP(measurement,tags, field, fileName)
@@ -34,41 +35,50 @@ def rawToInflux():
     tags = [
             "data=Raw",
             "Machine=Motor1",
-            "Sensor=Acc1"
+            "Sensor="+sensorName
             ]
     
     field = "acceleration"
-    fileName = join(mypath,sensorName+".txt")
+    fileName = join(fileDir,sensorName.replace('_', ' ')+".txt")
     LPfile = au.buildLP(measurement,tags, field, fileName)
     
     print("Writing raw data")
     write_api.write(RawBucket, org, LPfile)
     print("Done.")
 
-deleteWhenDone = True
+deleteWhenDone = False
+mypath = dirname(realpath(__file__))
+# Read data
+try: 
+    ConfigFile = open(join(mypath,'Config.json'))
+    Config = load(ConfigFile)
+    ConfigFile.close()
+except:
+    print("Can't open the configuration file.")
+    
+dataDir     = Config["DataDir"]
+measurement = Config["Measurement"]
+token       = Config["token"]
+org         = Config["org"]
+bucket      = Config["bucket"]
+RawBucket   = Config["RawBucket"]
+clientURL   = Config["clientURL"]
+sensorName  = "AI_1"
 
-datapath = join(getcwd(),'AutomationData')
-folderList = [f for f in listdir(datapath) if isdir(join(datapath, f))]
+folderList = [f for f in listdir(dataDir) if isdir(join(dataDir, f))]
 
-measurement = 'LattePanda'
-token       = "mytoken"
-org         = "myorg"
-bucket      = "Prova"
-RawBucket   = 'Prova1'
-sensorName  = "AI 1"
-
-client = InfluxDBClient(url="http://localhost:8086", token=token)
+client = InfluxDBClient(url=clientURL, token=token)
 write_api = client.write_api(write_options=ASYNCHRONOUS)
 
 for i in range(len(folderList)):
     print("loading folder: " + folderList[i])
-    mypath = join(getcwd(),'AutomationData',folderList[i])
-    fileList = [f for f in listdir(mypath) if isfile(join(mypath, f)) and not(f.find('_') == -1)]
+    fileDir = join(dataDir,folderList[i])
+    fileList = [f for f in listdir(fileDir) if isfile(join(fileDir, f)) and not(f.find('_') == -1)]
     statToInflux(fileList)
     rawToInflux()
     if deleteWhenDone:
-        rmtree(join(getcwd(),'AutomationData',folderList[i]))
+        rmtree(join(dataDir,folderList[i]))
         try:
-            remove(join(getcwd(),'AutomationData',folderList[i] + '.dxd'))
+            remove(join(dataDir,folderList[i] + '.dxd'))
         except:
             print('It is not possible to remove the file')
