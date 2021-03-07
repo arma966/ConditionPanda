@@ -8,14 +8,10 @@ from influxdb_client.client.write_api import ASYNCHRONOUS
 import autoUtils as au 
 
 # Connection setup 
-def statToInflux(fileList, write_api, Config, fileDir):
-    dataDir     = Config["DataDir"]
+def statToInflux(fileList, write_api, Config, fileDir,fDate):
     measurement = Config["Measurement"]
-    token       = Config["token"]
     org         = Config["org"]
     bucket      = Config["bucket"]
-    RawBucket   = Config["RawBucket"]
-    clientURL   = Config["clientURL"]
     sensorName  = "AI_1"
     
     sampleRate  = au.getSampleRate(sensorName.replace("_", " "), fileDir)
@@ -26,11 +22,12 @@ def statToInflux(fileList, write_api, Config, fileDir):
         end = fileList[i].find('.')
         
         field = fileList[i][start:end]
-    
+        
         tags = [
             "data=stat",
             "Machine=Motor1",
             "SampleRate="+str(sampleRate),
+            "Shot="+fDate,
             "Sensor="+sensorName
             ]
         
@@ -42,22 +39,20 @@ def statToInflux(fileList, write_api, Config, fileDir):
         print("Writing: " + field)
         write_api.write(bucket, org, LPfile)
 
-def rawToInflux(Config, write_api, fileDir):
+def rawToInflux(Config, write_api, fileDir, fDate):
     # Load RawData
-    
-    dataDir     = Config["DataDir"]
     measurement = Config["Measurement"]
-    token       = Config["token"]
     org         = Config["org"]
-    bucket      = Config["bucket"]
     RawBucket   = Config["RawBucket"]
-    clientURL   = Config["clientURL"]
     
     sensorName  = "AI_1"
+    sampleRate  = au.getSampleRate(sensorName.replace("_", " "), fileDir)
     
     tags = [
             "data=Raw",
             "Machine=Motor1",
+            "SampleRate="+str(sampleRate),
+            "Shot="+fDate,
             "Sensor="+sensorName
             ]
     
@@ -66,10 +61,16 @@ def rawToInflux(Config, write_api, fileDir):
     fileName = join(fileDir,sensorName.replace('_', ' ')+".txt")
     LPfile = au.buildLP(measurement,tags, field, fileName)
     
-    
     print("Writing raw data")
     write_api.write(RawBucket, org, LPfile)
     print("Done.")
+    
+def getFolderDate(folder):
+    for i in range(len(folder)):
+        if folder[i].isnumeric() == True:
+            fDate = folder[i:]
+            break
+    return fDate
 
 def uploadData():
     deleteWhenDone = True
@@ -83,14 +84,8 @@ def uploadData():
         print("Can't open the configuration file.")
         
     dataDir     = Config["DataDir"]
-    measurement = Config["Measurement"]
     token       = Config["token"]
-    org         = Config["org"]
-    bucket      = Config["bucket"]
-    RawBucket   = Config["RawBucket"]
     clientURL   = Config["clientURL"]
-    sensorName  = "AI_1"
-    
     
     folderList = [f for f in listdir(dataDir) if isdir(join(dataDir, f))]
     
@@ -102,8 +97,11 @@ def uploadData():
         fileDir = join(dataDir,folderList[i])
         fileList = [f for f in listdir(fileDir) if isfile(join(fileDir, f)) 
                     and not(f.find('_') == -1)]
-        statToInflux(fileList, write_api, Config, fileDir)
-        rawToInflux(Config, write_api, fileDir)
+        
+        fDate = getFolderDate(folderList[i])
+        statToInflux(fileList, write_api, Config, fileDir, fDate)
+        rawToInflux(Config, write_api, fileDir, fDate)
+        
         if deleteWhenDone:
             rmtree(join(dataDir,folderList[i]))
             try:

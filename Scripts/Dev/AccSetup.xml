@@ -12,7 +12,7 @@
 				<HDD_D_Total>953852 MB</HDD_D_Total>
 				<HDD_D_Free>581856 MB</HDD_D_Free>
 				<RAM_Total>32653 MB</RAM_Total>
-				<RAM_Free>17108 MB</RAM_Free>
+				<RAM_Free>17070 MB</RAM_Free>
 				<OS_Type>Windows 10 Build 19042</OS_Type>
 			</Computer>
 			<Devices>
@@ -403,7 +403,7 @@
 						<OutputChannel>
 							<DisplayColor>#00FF00</DisplayColor>
 							<Name IsDefault="True">AI 1</Name>
-							<Description>setup2</Description>
+							<Description></Description>
 							<DefaultUnit>False</DefaultUnit>
 							<Unit>m/s2</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>

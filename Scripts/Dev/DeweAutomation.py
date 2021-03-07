@@ -7,11 +7,8 @@
 #   - tested with Python 3.4
 #----------------------------------------------------------------------------------------------------------------
 
-from win32com.client import Dispatch
 import time
 import psutil
-from json import loads
-from deweUtils import DeweInit, getMeasName
 from os.path import join
 
 def isRunning():
@@ -45,9 +42,12 @@ def deweAuto(dw, FileName, DataDir):
     dw.Analyze()
     dw.OfflineCalc.Calculate()
     try:
+        print("Exporting data")
         dw.ExportData(7,2,join(DataDir,FileName))
     except:
         print("Exporting failed")
+    dw.Measure()
+    print("Measure completed")
     
     
     

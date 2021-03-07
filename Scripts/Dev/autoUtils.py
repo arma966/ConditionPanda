@@ -65,6 +65,7 @@ def getSampleRate(sensorName, Dir):
             SampleRate = int(line[13:-1])
     return SampleRate
 
+
 def buildLP(measurement, tags, fields, fileName):
     tagString = ""
     for i in range(len(tags)):
