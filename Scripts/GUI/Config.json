@@ -5,7 +5,9 @@
 	"Measurement": "Monitoring",
 	"token": "mytoken",
 	"org": "myorg",
-	"bucket": "Prova",
-	"RawBucket": "Prova1",
-	"clientURL": "http://localhost:8086"
+	"bucket": "StatBucket",
+	"RawBucket": "RawBucket",
+	"sensorName": "AI 1",
+	"clientURL": "http://localhost:8086",
+	"RecordDuration": "7000"
 }

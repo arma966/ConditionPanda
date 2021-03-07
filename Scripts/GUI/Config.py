@@ -2,11 +2,12 @@
 from tkinter import Tk, Label, Entry, Button
 from json import load, dump
 from os.path import join, realpath, dirname
-
+from subprocess import call
 
 def writeConfig():
     global Config
     global DirE
+    
     Config["DataDir"] = DirE.get()
     Config["SetupFile"] = SetupE.get()
     Config["Measurement"] = MeasE.get()
@@ -14,10 +15,20 @@ def writeConfig():
     Config["bucket"] = Bucket1E.get()
     Config["RawBucket"] = Bucket2E.get()
     Config["clientURL"] = UrlE.get()
+    Config["RecordDuration"] = RecE.get()
     
     filePath = join(mypath,'Config.json')
     with open(filePath,'w') as f:
         dump(Config,f,indent="\t")
+        
+def Load():
+    pass
+
+def Measure():
+    try:
+        call([Measure.py])
+    except:
+        print("Qualcosa è andato storto")
     
     
 root = Tk()
@@ -34,8 +45,8 @@ try:
 except:
     print("Can't open the configuration file.")
 
-windowWidth = int(640)
-windowHeight = int(250)
+windowWidth = int(750)
+windowHeight = int(280)
 root.minsize(windowWidth,windowHeight)
 root.resizable(0, 0)
 
@@ -75,8 +86,19 @@ UrlLabel.grid(row=6,column=0)
 UrlE = Entry(root, width = EntryLen)
 UrlE.grid(row=6,column=1,padx = 20,pady = 4)
 
+RecLabel = Label(root, text = "Record duration")
+RecLabel.grid(row=7,column=0)
+RecE = Entry(root, width = EntryLen)
+RecE.grid(row=7,column=1,padx = 20,pady = 4)
+
 SaveBtn = Button(root, text = "Save",width = 16, command=writeConfig)
-SaveBtn.place(x = round(0.4*windowWidth), y = round(0.84*windowHeight))
+SaveBtn.place(x = round(0.3*windowWidth), y = round(0.84*windowHeight))
+
+LoadBtn = Button(root, text = "Measure",width = 16, command=Load)
+LoadBtn.place(x = round(0.8*windowWidth), y = round(0.5*windowHeight))
+
+MeasureBtn = Button(root, text = "Load",width = 16, command=Measure)
+MeasureBtn.place(x = round(0.8*windowWidth), y = round(0.3*windowHeight))
 
 DirE.insert(0, Config["DataDir"])
 SetupE.insert(0, Config["SetupFile"])
@@ -85,5 +107,6 @@ OrgE.insert(0, Config["org"])
 Bucket1E.insert(0, Config["bucket"])
 Bucket2E.insert(0, Config["RawBucket"])
 UrlE.insert(0, Config["clientURL"])
+RecE.insert(0, Config["RecordDuration"])
 
 root.mainloop()

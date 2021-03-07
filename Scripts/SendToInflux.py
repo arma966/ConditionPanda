@@ -46,7 +46,7 @@ def rawToInflux():
     write_api.write(RawBucket, org, LPfile)
     print("Done.")
 
-deleteWhenDone = False
+deleteWhenDone = True
 mypath = dirname(realpath(__file__))
 # Read data
 try: 
@@ -65,6 +65,7 @@ RawBucket   = Config["RawBucket"]
 clientURL   = Config["clientURL"]
 sensorName  = "AI_1"
 
+
 folderList = [f for f in listdir(dataDir) if isdir(join(dataDir, f))]
 
 client = InfluxDBClient(url=clientURL, token=token)
@@ -73,7 +74,8 @@ write_api = client.write_api(write_options=ASYNCHRONOUS)
 for i in range(len(folderList)):
     print("loading folder: " + folderList[i])
     fileDir = join(dataDir,folderList[i])
-    fileList = [f for f in listdir(fileDir) if isfile(join(fileDir, f)) and not(f.find('_') == -1)]
+    fileList = [f for f in listdir(fileDir) if isfile(join(fileDir, f)) 
+                and not(f.find('_') == -1)]
     statToInflux(fileList)
     rawToInflux()
     if deleteWhenDone:
@@ -82,3 +84,4 @@ for i in range(len(folderList)):
             remove(join(dataDir,folderList[i] + '.dxd'))
         except:
             print('It is not possible to remove the file')
+            pass

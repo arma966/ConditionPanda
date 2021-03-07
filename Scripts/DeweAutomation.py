@@ -33,6 +33,7 @@ config = loads(configData)
 DataDir = config['DataDir']
 SetupFile = config['SetupFile']
 FileName = config['FileName']+msname
+PostTime    = 6000
 
 # Check if the application is already running
 
@@ -43,9 +44,11 @@ isReady = isRunning()
 dw = Dispatch("Dewesoft.App")
 if not(isReady):
     DeweInit(dw, DataDir, SetupFile)
+    dw.Trigger.PostTime = PostTime
     print('Waiting for the sensor to set-up (15s)')
     time.sleep(15)
     
+
 # Routine ____________________________________________________________________
 dw.Measure()   
 print('Starting Storing')
