@@ -10,6 +10,6 @@
 	"sensorName": "AI 1",
 	"clientURL": "http://localhost:8086",
 	"RecordDuration": "5000",
-	"SampleRate": "10000",
-	"AutoLoad": "True"
+	"SampleRate": "20000",
+	"AutoLoad": "False"
 }

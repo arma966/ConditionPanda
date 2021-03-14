@@ -7,7 +7,6 @@ from influxdb_client.client.write_api import ASYNCHRONOUS
 
 import autoUtils as au 
 
-# Connection setup 
 def statToInflux(fileList, write_api, Config, fileDir,fDate):
     measurement = Config["Measurement"]
     org         = Config["org"]
@@ -92,6 +91,8 @@ def uploadData():
     client = InfluxDBClient(url=clientURL, token=token)
     write_api = client.write_api(write_options=ASYNCHRONOUS)
     
+    # For every folder to export, convert the contained files to line protocol
+    # and send them to influx
     for i in range(len(folderList)):
         print("loading folder: " + folderList[i])
         fileDir = join(dataDir,folderList[i])
