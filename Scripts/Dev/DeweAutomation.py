@@ -1,12 +1,3 @@
-
-#----------------------------------------------------------------------------------------------------------------
-# Dewesoft automation example for Python
-#----------------------------------------------------------------------------------------------------------------
-# Author: Dewesoft
-# Notes:
-#   - tested with Python 3.4
-#----------------------------------------------------------------------------------------------------------------
-
 import time
 import psutil
 from os.path import join
@@ -39,8 +30,10 @@ def deweAuto(dw, FileName, DataDir):
     
     dw.Stop()
     
+    # Calculate offline math (FFT, statistics, etc...)
     dw.Analyze()
     dw.OfflineCalc.Calculate()
+    
     try:
         print("Exporting data")
         dw.ExportData(7,2,join(DataDir,FileName))
