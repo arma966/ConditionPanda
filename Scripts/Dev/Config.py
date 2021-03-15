@@ -10,7 +10,6 @@ import time
 from json import loads
 from SendToInflux import *
 
-
 def writeConfig():
     global Config
     global DirE
