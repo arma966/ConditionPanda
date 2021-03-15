@@ -1,6 +1,7 @@
 import re
 import datetime
 from numpy import loadtxt
+from os.path import join
 
 def getTimestamp(fileName):
     with open(fileName,'r') as myfile:
@@ -53,6 +54,17 @@ def getTimestamp(fileName):
     timestamp = datetime.datetime(yy,mo,dd,hh,mi,ss,us).timestamp()
     
     return timestamp
+
+def getSampleRate(sensorName, Dir):
+    file2open = join(Dir,sensorName + '.txt')
+    with open(file2open) as f:
+        file = f.readlines(250)
+    f.close()
+    for line in file:
+        if line.find("Sample rate") == 0:
+            SampleRate = int(line[13:-1])
+    return SampleRate
+
 
 def buildLP(measurement, tags, fields, fileName):
     tagString = ""

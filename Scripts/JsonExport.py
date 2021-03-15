@@ -11,7 +11,6 @@ from json import dump, load
 from os import listdir
 from os.path import join, isfile, isdir
 from datetime import datetime, timedelta
-
 from pandas import read_csv
 
 def getMetadata(FilePath):
@@ -52,7 +51,7 @@ def getData(FilePath):
     data= loadtxt(FilePath, delimiter=",",skiprows=rowsToSkip)
     return data
 
-def buildDataDictionary(fileDir):
+def buildKPIdictionary(fileDir):
     # Read all the exported file and create a data structure based on nested
     # dictionaries. 
     
@@ -68,8 +67,9 @@ def buildDataDictionary(fileDir):
                "Frequency": {}}
     
     for f in fileList:
+        FilePath = join(fileDir,f)
         try:
-            data = getData(f)
+            data = getData(FilePath)
             statName = f[f.find("_")+1:f.find(".")].replace(" ","_")
             timeDict = {"Dt": round((data[1,0]-data[0,0])*1000,2),
                         "data": data[:,1].tolist()}
@@ -109,7 +109,7 @@ def buildDataDictionary(fileDir):
                     str(endTime.year) + ' ' + str(endTime.hour) + ':' + \
                     str(endTime.minute) + ':' + str(endTime.second) + '.' +\
                     str(endTime.microsecond)[0:-3]
-    dataDict = {
+    KPIdict = {
                 "DV": sensorSpec["DV"].to_string(index = False).replace(' ',''),
                 "DAQ": sensorSpec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
@@ -119,10 +119,10 @@ def buildDataDictionary(fileDir):
                 "SF": metaDataFile["Sample rate"],
                 "PT": metaDataFile["Post time"],
         }
-    return dataDict
+    return KPIdict
 
 def buildRawDictionary(fileDir):
-    # Build the dictionary based data structure, see buildDataDictionary().
+    # Build the dictionary based data structure, see buildKPIdictionary().
     
     # IMPORTANT: for the future updates it is mandatory to iterate through 
     # the sensor's names
@@ -160,7 +160,7 @@ def buildRawDictionary(fileDir):
                     str(endTime.year) + ' ' + str(endTime.hour) + ':' + \
                     str(endTime.minute) + ':' + str(endTime.second) + '.' +\
                     str(endTime.microsecond)[0:-3]
-    dataDict = {
+    KPIdict = {
                 "DV": sensorSpec["DV"].to_string(index = False).replace(' ',''),
                 "DAQ": sensorSpec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
@@ -170,7 +170,7 @@ def buildRawDictionary(fileDir):
                 "SF": int(metaDataFile["Sample rate"]),
                 "PT": int(metaDataFile["Post time"]),
         }
-    return dataDict
+    return KPIdict
 
 def getShot(date):
     dt = datetime.strptime(date, '%m/%d/%Y %H:%M:%S.%f')
@@ -198,29 +198,29 @@ def getShot(date):
     shot = y+m+d+h+mi+s
     return shot
 
-def to_json(data, name):
+def writeJson(data, name):
     # Write the json file
-    couchDir = "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB"
-    with open(couchDir + '\\' + name +'.json', 'w') as f:
+    with open(name, 'w') as f:
         dump(data, f)
     f.close()
     
 def to_couchDB():
-    with open("NewConfig.txt") as f:
+    couchDir = "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB"
+    with open("NewConfig.json") as f:
         config = load(f)
     f.close()
     
-    dataDir = "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\Scripts\\AutomationData"
+    dataDir = config["Dewesoft"]["DataDir"]
     folderList = [f for f in listdir(dataDir) if isdir(join(dataDir, f))]
     
     for f in folderList:
         path = join(dataDir,f)
-        dataDict = buildDataDictionary(path)
+        KPIdict = buildKPIdictionary(path)
         rawDict = buildRawDictionary(path)
     
-        shot = getShot(dataDict["AST"])
+        shot = getShot(KPIdict["AST"])
         print("Uploading shot: " + shot)
-        dataDictName = shot + "KPI"
+        KPIdictName = shot + "KPI"
         rawDictName = shot + "Raw"
-        to_json(dataDict, dataDictName)
-        to_json(rawDict, rawDictName)
+        writeJson(KPIdict, couchDir + '\\' + KPIdictName +'.json')
+        writeJson(rawDict, couchDir + '\\' + rawDictName +'.json')

@@ -1,6 +1,6 @@
 {
 	"DataDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\Scripts\\AutomationData",
-	"SetupFile": "AccSetup2.xml",
+	"SetupFile": "AccSetup.xml",
 	"FileName": "LattePanda",
 	"Measurement": "Monitoring",
 	"token": "mytoken",
@@ -9,5 +9,7 @@
 	"RawBucket": "RawBucket",
 	"sensorName": "AI 1",
 	"clientURL": "http://localhost:8086",
-	"RecordDuration": "6000"
+	"RecordDuration": "5000",
+	"SampleRate": "20000",
+	"AutoLoad": "False"
 }

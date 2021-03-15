@@ -9,6 +9,8 @@
 import json 
 from re import findall
 from datetime import datetime
+from influxdb_client import InfluxDBClient
+from influxdb_client.client.write_api import ASYNCHRONOUS
 
 def openJson(FileName):
     try:
@@ -20,6 +22,18 @@ def openJson(FileName):
     else:
         f.close()
 def KPIto_influx(FileName):
+    with open("NewConfig.json") as f:
+        config = json.load(f)
+    f.close()
+    
+    
+    client = InfluxDBClient(url=config["InfluxDB"]["Client URL"], 
+                            token=config["InfluxDB"]["Token"])
+    bucket = config["InfluxDB"]["KPI Bucket"]
+    org = config["InfluxDB"]["Org"]
+    
+    write_api = client.write_api(write_options=ASYNCHRONOUS)
+    
     content = openJson(FileName)
     SentFiles = {}
     sensorList = list(content["S"].keys())
@@ -36,7 +50,7 @@ def KPIto_influx(FileName):
         # Build the tag string
         tagString = "Sample_rate=" + str(content["SF"]) +","+\
                     "Shot="+ list(findall("\d+",FileName))[0] +","+\
-                    "Sensor="+ sensorList[0] +","+\
+                    "Sensor="+ sensorList[0].replace(" ","_") +","+\
                     "Machine="+ content["S"][sensorList[0]]["MAC"] +","+\
                     "KPI_Type="+ 'Time'
                     
@@ -51,6 +65,8 @@ def KPIto_influx(FileName):
                   + str(timestamp+int(d*dt*1e6)) for d in range(len(data))]
         
         # Send to influx
+        print("Writing: " + fields)
+        write_api.write(bucket, org, lines)
         SentFiles[TimeKPIList[i]] = lines
     
     # Iterate on Frequency - KPI
@@ -58,7 +74,7 @@ def KPIto_influx(FileName):
         # Build the tag string
         tagString = "Sample_rate=" + str(content["SF"]) +","+\
                     "Shot="+ list(findall("\d+",FileName))[0] +","+\
-                    "Sensor="+ sensorList[0] +","+\
+                    "Sensor="+ sensorList[0].replace(" ","_") +","+\
                     "Machine="+ content["S"][sensorList[0]]["MAC"] +","+\
                     "KPI_Type="+ 'Time'
                     
@@ -77,5 +93,6 @@ def KPIto_influx(FileName):
     return SentFiles
     
 
-FileName = "20210314144406Math.json"
+FileName = "20210314144406KPI.json"
+
 sent = KPIto_influx(FileName)
