@@ -1,8 +1,18 @@
+# ____________________________________________________________________________
+# Utilities to create a dictionary based data structure from the Dewesoft-exported
+# files. The data structure is then coverted to the json format. 
+#
+# Author: Armenante Davide
+# Last update: 15/3/2021
+# ____________________________________________________________________________
+
 from numpy import loadtxt
 from json import dump 
 from os import listdir
 from os.path import join, isfile
 from datetime import datetime, timedelta
+
+from pandas import read_csv
 
 def getMetadata(FileName):
     # Read the firsts few lines of the *FileName* and retrieve the metadata 
@@ -50,26 +60,43 @@ def buildDataDictionary(fileDir):
     fileList = [f for f in listdir(fileDir) if isfile(join(fileDir, f)) 
                         and not(f.find('_') == -1)]
     
+    # IMPORTANT: for the future updates it is mandatory to iterate through 
+    # the sensor's names
+    SensorName = "AI 1"
     # Build KPI dictionary
-    KPIdict = {}
+    KPIdict = {"Time": {},
+               "Frequency": {}}
+    
     for f in fileList:
         try:
             data = getData(f)
             statName = f[f.find("_")+1:f.find(".")].replace(" ","_")
-            statDict = {"Dt": round((data[1,0]-data[0,0])*1000),
+            timeDict = {"Dt": round((data[1,0]-data[0,0])*1000,2),
                         "data": data[:,1].tolist()}
-            KPIdict[statName] = statDict
+            KPIdict["Time"][statName] = timeDict
         except:
             print("Impossible to retrieve data from " + f)
     
     # Build sensor dictionary
-    sensorDict = {"AI 1": {
-                  "MOD": "J352SN",
-                  "MAC": "MotorA",
-                  "LOC": "Rotor",
-                  "KPI": KPIdict
-                  }
-        }
+    # Get the sensor data from the csv table
+    try:
+        SensorTable = read_csv("SensorTable.csv")
+        sensorSpec = SensorTable.query("Dewe_name == "+ '"'+SensorName+'"')
+        sensorDict = {SensorName: {
+                      "MOD": sensorSpec["MOD"].to_string(index = False).replace(' ',''),
+                      "MAC": sensorSpec["MAC"].to_string(index = False).replace(' ',''),
+                      "LOC": sensorSpec["LOC"].to_string(index = False).replace(' ',''),
+                      "KPI": KPIdict
+                      }
+            }
+    except KeyError:
+        print("Sensor not present in the table")
+        sensorDict = {}
+        sensorDict["KPI"] = KPIdict
+    except FileNotFoundError:
+        print("Make sure the sensor table file and the python script are in the same directory")
+        sensorDict = {}
+        sensorDict["KPI"] = KPIdict
     
     metaDataFile = getMetadata(fileList[0])
     
@@ -82,8 +109,8 @@ def buildDataDictionary(fileDir):
                     str(endTime.minute) + ':' + str(endTime.second) + '.' +\
                     str(endTime.microsecond)[0:-3]
     dataDict = {
-                "DV": "LattePanda",
-                "DAQ": "IOLITEd-1xACC",
+                "DV": sensorSpec["DV"].to_string(index = False).replace(' ',''),
+                "DAQ": sensorSpec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
                 "S": sensorDict,
                 "AST": metaDataFile["Start time"],
@@ -96,6 +123,10 @@ def buildDataDictionary(fileDir):
 def buildRawDictionary(fileDir):
     # Build the dictionary based data structure, see buildDataDictionary().
     
+    # IMPORTANT: for the future updates it is mandatory to iterate through 
+    # the sensor's names
+    SensorName = "AI 1"
+    
     # Get the file list
     fileList = [f for f in listdir(fileDir) if isfile(join(fileDir, f)) 
                         and f.find('_') == -1 and not(f.find('.txt') == -1) ]
@@ -107,10 +138,12 @@ def buildRawDictionary(fileDir):
     
     
     # Build sensor dictionary
-    sensorDict = {"AI 1": {
-                  "MOD": "J352SN",
-                  "MAC": "MotorA",
-                  "LOC": "Rotor",
+    SensorTable = read_csv("SensorTable.csv")
+    sensorSpec = SensorTable.query("Dewe_name == "+ '"'+SensorName+'"')
+    sensorDict = {SensorName: {
+                  "MOD": sensorSpec["MOD"].to_string(index = False).replace(' ',''),
+                  "MAC": sensorSpec["MAC"].to_string(index = False).replace(' ',''),
+                  "LOC": sensorSpec["LOC"].to_string(index = False).replace(' ',''),
                   "Data": data[:,1].tolist()
                   }
         }
@@ -126,14 +159,14 @@ def buildRawDictionary(fileDir):
                     str(endTime.minute) + ':' + str(endTime.second) + '.' +\
                     str(endTime.microsecond)[0:-3]
     dataDict = {
-                "DV": "LattePanda",
-                "DAQ": "IOLITEd-1xACC",
+                "DV": sensorSpec["DV"].to_string(index = False).replace(' ',''),
+                "DAQ": sensorSpec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
                 "S": sensorDict,
                 "AST": metaDataFile["Start time"],
                 "AET": endTimeString,
-                "SF": metaDataFile["Sample rate"],
-                "PT": metaDataFile["Post time"],
+                "SF": int(metaDataFile["Sample rate"]),
+                "PT": int(metaDataFile["Post time"]),
         }
     return dataDict
 
@@ -168,15 +201,3 @@ def to_json(data, name):
     with open(name +'.json', 'w') as f:
         dump(data, f)
     f.close()
-
-fileDir = "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\Scripts\\FilesDemo\\LattePanda20210314144404"
-
-dataDict = buildDataDictionary(fileDir)
-rawDict = buildRawDictionary(fileDir)
-
-shot = getShot(dataDict["AST"])
-
-dataDictName = shot + "Math"
-rawDictName = shot + "Raw"
-to_json(dataDict, dataDictName)
-to_json(rawDict, rawDictName)
