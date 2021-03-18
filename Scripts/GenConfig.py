@@ -35,7 +35,7 @@ def productionConfig():
     influxDict = {"Org": "myorg",
                   "Token": "mytoken",
                   "Measurement": "Monitoring",
-                  "Client URL": "http://localhost:8086",
+                  "Client URL": "http://192.168.1.5:8086",
                   "KPI Bucket": "KPI_db",
                   "AutoLoad": "True",
                   "LogDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\CouchDB\\Log\\Log.txt"
