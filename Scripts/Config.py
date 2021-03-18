@@ -6,56 +6,60 @@ from os.path import join, realpath, dirname
 from DeweAutomation import isRunning, deweAuto
 from deweUtils import DeweInit, getMeasName
 from win32com.client import Dispatch
+from datetime import date
 import time
-from json import loads
-from SendToInflux import *
 import JsonExport as je
+import JsonToInflux as jti
 
 
 def writeConfig():
     global Config
     global DirE
     
-    Config["DataDir"] = DirE.get()
-    Config["SetupFile"] = SetupE.get()
-    Config["Measurement"] = MeasE.get()
-    Config["org"] = OrgE.get()
-    Config["bucket"] = Bucket1E.get()
-    Config["RawBucket"] = Bucket2E.get()
-    Config["clientURL"] = UrlE.get()
-    Config["RecordDuration"] = RecE.get()
-    Config["SampleRate"] = ComboSampleR.get()
+    Config["Dewesoft"]["DataDir"]           = DirE.get()
+    Config["Dewesoft"]["SetupFile"]         = SetupE.get()
+    Config["InfluxDB"]["Measurement"]       = MeasE.get()
+    Config["InfluxDB"]["Org"]               = OrgE.get()
+    Config["InfluxDB"]["KPI Bucket"]        = Bucket1E.get()
+    Config["InfluxDB"]["Client URL"]        = UrlE.get()
+    Config["Dewesoft"]["Record duration"]   = RecE.get()
+    Config["Dewesoft"]["Sampling frequency"] = ComboSampleR.get()
     
-    filePath = join(mypath,'Config.json')
+    filePath = join(mypath,ConfigFile)
     with open(filePath,'w') as f:
         dump(Config,f,indent="\t")
     f.close()
-    dw.Trigger.PostTime = int(Config["RecordDuration"])
+    dw.Trigger.PostTime = int(Config["Dewesoft"]["Record duration"])
     dw.Measure()
-    dw.MeasureSampleRate = int(Config["SampleRate"])
+    dw.MeasureSampleRate = int(Config["Dewesoft"]["Sampling frequency"])
+    print("Configuration saved")
         
 def Load():
     dw.Measure()
     je.to_couchDB()
-    uploadData()
+    dateToLoad = str(date.today())
+    jti.to_influx(dateToLoad)
 
 def Measure():
     msname = getMeasName()
-    FileName = config['FileName']+msname
+    FileName = Config["Dewesoft"]['FileName']+msname
     deweAuto(dw,FileName, DataDir)
+    
     
     if checkVar.get() == True:
         print("Auto loading")
         dw.Measure()
-        uploadData()
+        je.to_couchDB()
+        dateToLoad = str(date.today())
+        jti.to_influx(dateToLoad)    
     
 def LoadSetup():
-    dw.LoadSetup(join(mypath,Config["SetupFile"]))
+    dw.LoadSetup(join(mypath,Config["Dewesoft"]["SetupFile"]))
 
 def SetAutoLoad():
     global Config
     
-    Config["AutoLoad"] = str(checkVar.get())
+    Config["InfluxDB"]["AutoLoad"] = str(checkVar.get())
     filePath = join(mypath,'Config.json')
     with open(filePath,'w') as f:
         dump(Config,f,indent="\t")
@@ -68,7 +72,7 @@ root.iconbitmap(join(mypath,'icon.ico'))
 root.title("Configuration")
 
 # Read config file
-ConfigFile = "NewConfig.json"
+ConfigFile = "Config.json"
 try: 
     with open(ConfigFile) as f:
         Config = load(f)
@@ -137,7 +141,7 @@ UrlE.grid(row=10,column=1,padx = 20,pady = 4, sticky=W)
 checkVar = BooleanVar()
 checkAutoload = Checkbutton(root, text='Auto load',variable=checkVar, 
                             onvalue=True, offvalue=False, command=SetAutoLoad)
-checkAutoload.place(x = round(0.8*windowWidth), y = round(1*windowHeight))
+checkAutoload.place(x = round(0.8*windowWidth), y = round(.9*windowHeight))
 
 ReloadBtn = Button(root, text = "Reload setup",width = 16, command=LoadSetup)
 ReloadBtn.place(x = round(0.8*windowWidth), y = round(0.2*windowHeight))
@@ -162,8 +166,6 @@ RecE.insert(0, Config["Dewesoft"]["Record duration"])
 ComboSampleR.insert(0, Config["Dewesoft"]["Sampling frequency"])
 checkVar.set(Config["InfluxDB"]["AutoLoad"])
 
-msname = getMeasName()
-
 DataDir = Config["Dewesoft"]["DataDir"]
 SetupFile = Config["Dewesoft"]["SetupFile"]
 PostTime    = Config["Dewesoft"]["Record duration"]
@@ -171,6 +173,7 @@ PostTime    = Config["Dewesoft"]["Record duration"]
 # Check if the application is already running
 isReady = isRunning()
 dw = Dispatch("Dewesoft.App")
+
 if not(isReady):
     DeweInit(dw, DataDir, SetupFile)
     dw.Trigger.PostTime = PostTime
