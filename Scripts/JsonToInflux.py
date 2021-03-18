@@ -116,6 +116,15 @@ def write_log(log_path, file_name):
     else:
         f.close()
 
+def bucket_exists(client, config):
+    response = False
+    buckets_dir = client.buckets_api().find_buckets().to_dict()
+    for i in range(len(buckets_dir["buckets"])):
+        if buckets_dir["buckets"][i]["name"] == config["InfluxDB"]["KPI Bucket"]:
+            response = True
+            return response
+        
+        
 def to_influx(date_string):
     # Read the configuration file to obtain the log file path
     config = open_json("Config.json") 
@@ -125,6 +134,9 @@ def to_influx(date_string):
     client = InfluxDBClient(url=config["InfluxDB"]["Client URL"], 
                             token=config["InfluxDB"]["Token"])
     
+    if not bucket_exists(client, config):
+        print("The bucket doesn't exist")
+        return
     write_api = client.write_api(write_options=ASYNCHRONOUS)
     
     log_path = config["InfluxDB"]["LogDir"]
@@ -163,5 +175,6 @@ def to_influx(date_string):
             print(file_name + " already updated")
 
 
+    
 if __name__ == '__main__':
     to_influx("2021-03-17")
