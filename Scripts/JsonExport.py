@@ -8,10 +8,11 @@
 
 from numpy import loadtxt
 from json import dump, load
-from os import listdir
-from os.path import join, isfile, isdir
+from os import listdir, mkdir, remove
+from os.path import join, isfile, isdir, exists
 from datetime import datetime, timedelta
 from pandas import read_csv
+from shutil import rmtree
 
 def getMetadata(FilePath):
     # Read the firsts few lines of the *FileName* and retrieve the metadata 
@@ -203,24 +204,52 @@ def writeJson(data, name):
     with open(name, 'w') as f:
         dump(data, f)
     f.close()
-    
+
+def getTargetPath(couchDir, date):
+    dt = datetime.strptime(date, '%m/%d/%Y %H:%M:%S.%f')
+    targetPath = join(couchDir,str(dt.year),str(dt.month),str(dt.day))
+    if not(exists(targetPath)):
+        if not(exists(join(couchDir,str(dt.year),str(dt.month)))):
+            if not(exists(join(couchDir,str(dt.year)))):
+                mkdir(join(couchDir,str(dt.year)))
+                mkdir(join(couchDir,str(dt.year),str(dt.month)))
+                mkdir(join(couchDir,str(dt.year),str(dt.month),str(dt.day)))
+            else:
+                mkdir(join(couchDir,str(dt.year),str(dt.month)))
+                mkdir(join(couchDir,str(dt.year),str(dt.month),str(dt.day)))
+        else:
+            mkdir(join(couchDir,str(dt.year),str(dt.month),str(dt.day)))
+    return targetPath
+
 def to_couchDB():
-    couchDir = "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB"
-    with open("NewConfig.json") as f:
+    with open("Config.json") as f:
         config = load(f)
     f.close()
     
     dataDir = config["Dewesoft"]["DataDir"]
-    folderList = [f for f in listdir(dataDir) if isdir(join(dataDir, f))]
+    couchDir = config["CouchDB"]["couchDir"]
+    DeweFolderList = [f for f in listdir(dataDir) if isdir(join(dataDir, f))]
     
-    for f in folderList:
+    for f in DeweFolderList:
         path = join(dataDir,f)
-        KPIdict = buildKPIdictionary(path)
-        rawDict = buildRawDictionary(path)
-    
-        shot = getShot(KPIdict["AST"])
-        print("Uploading shot: " + shot)
-        KPIdictName = shot + "KPI"
-        rawDictName = shot + "Raw"
-        writeJson(KPIdict, couchDir + '\\' + KPIdictName +'.json')
-        writeJson(rawDict, couchDir + '\\' + rawDictName +'.json')
+        try:
+            KPIdict = buildKPIdictionary(path)
+            rawDict = buildRawDictionary(path)
+        
+            shot = getShot(KPIdict["AST"])
+            
+            targetPath = getTargetPath(couchDir, KPIdict["AST"])
+            
+            KPIdictName = shot + "KPI.json"
+            rawDictName = shot + "Raw.json"
+            print("Uploading shot: " + shot + " to CouchDB")
+            writeJson(KPIdict, join(targetPath,KPIdictName))
+            writeJson(rawDict, join(targetPath,rawDictName))
+        except:
+            print("It was not possible to load the data to couchDB")
+        else:
+            rmtree(path)
+            remove(path + '.dxd')
+
+if __name__ == '__main__':
+    to_couchDB()

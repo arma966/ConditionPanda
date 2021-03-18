@@ -1,15 +1,22 @@
 {
-	"DataDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\Scripts\\AutomationData",
-	"SetupFile": "AccSetup.xml",
-	"FileName": "LattePanda",
-	"Measurement": "Monitoring",
-	"token": "mytoken",
-	"org": "myorg",
-	"bucket": "StatBucket",
-	"RawBucket": "RawBucket",
-	"sensorName": "AI 1",
-	"clientURL": "http://localhost:8086",
-	"RecordDuration": "5000",
-	"SampleRate": "20000",
-	"AutoLoad": "False"
+    "Dewesoft": {
+        "DataDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\Scripts\\AutomationData",
+        "SetupFile": "AccSetup2.xml",
+        "FileName": "LattePanda",
+        "Record duration": 10000,
+        "Sampling frequency": 20000,
+        "Sensor name": "AI 1"
+    },
+    "InfluxDB": {
+        "Org": "myorg",
+        "Token": "mytoken",
+        "Measurement": "Monitoring",
+        "Client URL": "http://localhost:8086",
+        "KPI Bucket": "KPI_db",
+        "AutoLoad": "True",
+        "LogDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB\\Log\\Log.txt"
+    },
+    "CouchDB": {
+        "couchDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB"
+    }
 }
