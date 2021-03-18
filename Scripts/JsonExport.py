@@ -240,8 +240,8 @@ def to_couchDB():
         config = load(f)
     f.close()
     
-    data_dir = config["Dewesoft"]["data_dir"]
-    couch_dir = config["CouchDB"]["couch_dir"]
+    data_dir = config["Dewesoft"]["DataDir"]
+    couch_dir = config["CouchDB"]["couchDir"]
     dewe_folder_list = [f for f in listdir(data_dir) if isdir(join(data_dir, f))]
     
     # For every folder created by exporting the acquired files, navigate through
