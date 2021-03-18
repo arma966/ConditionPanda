@@ -75,7 +75,7 @@ def build_KPI_dictionary(file_dir):
     for f in file_list:
         file_path = join(file_dir,f)
         data = get_data(file_path)
-        if data != None:
+        if data is not(None):
             KPI_names = f[f.find("_")+1:f.find(".")].replace(" ","_")
             time_dictionary = {"Dt": round((data[1,0]-data[0,0])*1000,2),
                                "data": data[:,1].tolist()}
@@ -252,9 +252,9 @@ def to_couchDB():
         KPI_dict = build_KPI_dictionary(dewe_data_path)
         RAW_dict = build_RAW_dictionary(dewe_data_path)
         
-        if KPI_dict != None and RAW_dict != None:
+        if KPI_dict is not(None) and RAW_dict is not(None):
             shot = get_shot(KPI_dict["AST"])
-            if shot != None:
+            if shot is not(None):
                 target_path = get_target_path(couch_dir, KPI_dict["AST"])
                 
                 KPI_dictName = shot + "KPI.json"
