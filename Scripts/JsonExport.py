@@ -149,7 +149,7 @@ def build_RAW_dictionary(file_dir):
     
     
     # Build sensor dictionary
-    sensor_table = read_csv("sensor_table.csv")
+    sensor_table = read_csv("SensorTable.csv")
     sensor_spec = sensor_table.query("Dewe_name == "+ '"'+sensor_name+'"')
     sensor_dictionary = {sensor_name: {
                   "MOD": sensor_spec["MOD"].to_string(index = False).replace(' ',''),
@@ -243,6 +243,10 @@ def to_couchDB():
     data_dir = config["Dewesoft"]["DataDir"]
     couch_dir = config["CouchDB"]["couchDir"]
     dewe_folder_list = [f for f in listdir(data_dir) if isdir(join(data_dir, f))]
+    
+    if dewe_folder_list == []:
+        print("There are no data acquired by the DAQ")
+        return
     
     # For every folder created by exporting the acquired files, navigate through
     # it and upload the data to couchDB
