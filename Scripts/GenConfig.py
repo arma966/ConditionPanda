@@ -38,10 +38,10 @@ def productionConfig():
                   "Client URL": "http://localhost:8086",
                   "KPI Bucket": "KPI_db",
                   "AutoLoad": "True",
-                  "LogDir": "C:\\Users\\LattePanda\\Documents\\CouchDB\\Log\\Log.txt"
+                  "LogDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\CouchDB\\Log\\Log.txt"
         }
     
-    deweDict = {"DataDir": "C:\\Users\\LattePanda\\Documents\\Scripts\\AutomationData",
+    deweDict = {"DataDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\Scripts\\AutomationData",
                 "SetupFile": "AccSetup2.xml",
                 "FileName": "LattePanda",
                 "Record duration": 10000,
@@ -49,7 +49,7 @@ def productionConfig():
                 "Sensor name": "AI 1"
         }
     
-    couchDict = {"couchDir": "C:\\Users\\LattePanda\\ConditionPanda\\CouchDB"
+    couchDict = {"couchDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\CouchDB"
         }
     
     config = {"Dewesoft": deweDict,
