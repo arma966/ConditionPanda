@@ -86,7 +86,7 @@ def build_KPI_dictionary(file_dir):
     # Build sensor dictionary
     # Get the sensor data from the csv table
     try:
-        sensor_table = read_csv("sensor_table.csv")
+        sensor_table = read_csv("SensorTable.csv")
         sensor_spec = sensor_table.query("Dewe_name == "+ '"'+sensor_name+'"')
     except KeyError:
         print("Sensor not present in the table")
