@@ -1,7 +1,7 @@
 from json import dump 
 
-def developementConfig():
-    influxDict = {"Org": "myorg",
+def developement_config():
+    influx_dict = {"Org": "myorg",
                   "Token": "mytoken",
                   "Measurement": "Monitoring",
                   "Client URL": "http://localhost:8086",
@@ -10,7 +10,7 @@ def developementConfig():
                   "LogDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB\\Log\\Log.txt"
         }
     
-    deweDict = {"DataDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\Scripts\\AutomationData",
+    dewe_dict = {"DataDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\Scripts\\AutomationData",
                 "SetupFile": "AccSetup2.xml",
                 "FileName": "LattePanda",
                 "Record duration": 10000,
@@ -18,12 +18,12 @@ def developementConfig():
                 "Sensor name": "AI 1"
         }
     
-    couchDict = {"couchDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB"
+    couch_dict = {"couchDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB"
         }
     
-    config = {"Dewesoft": deweDict,
-              "InfluxDB": influxDict,
-              "CouchDB": couchDict
+    config = {"Dewesoft": dewe_dict,
+              "InfluxDB": influx_dict,
+              "CouchDB": couch_dict
         }
 
     with open('Config.json', 'w') as f:
@@ -31,8 +31,8 @@ def developementConfig():
     f.close()
 
 
-def productionConfig():
-    influxDict = {"Org": "myorg",
+def production_config():
+    influx_dict = {"Org": "myorg",
                   "Token": "mytoken",
                   "Measurement": "Monitoring",
                   "Client URL": "http://192.168.1.5:8086",
@@ -41,7 +41,7 @@ def productionConfig():
                   "LogDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\CouchDB\\Log\\Log.txt"
         }
     
-    deweDict = {"DataDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\Scripts\\AutomationData",
+    dewe_dict = {"DataDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\Scripts\\AutomationData",
                 "SetupFile": "AccSetup2.xml",
                 "FileName": "LattePanda",
                 "Record duration": 10000,
@@ -49,24 +49,24 @@ def productionConfig():
                 "Sensor name": "AI 1"
         }
     
-    couchDict = {"couchDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\CouchDB"
+    couch_dict = {"couchDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\CouchDB"
         }
     
-    config = {"Dewesoft": deweDict,
-              "InfluxDB": influxDict,
-              "CouchDB": couchDict
+    config = {"Dewesoft": dewe_dict,
+              "InfluxDB": influx_dict,
+              "CouchDB": couch_dict
         }
     with open('Config.json', 'w') as f:
         dump(config, f, indent = 4)
     f.close()
 
 
-def generateConfig(conf):
+def generate_config(conf):
     if conf == 'd':
-        developementConfig()
+        developement_config()
         print('Developement configuration correctly generated')
     elif conf == 'p':
-        productionConfig()
+        production_config()
         print('Production configuration correctly generated')
     else:
         print("Invalid parameter")
@@ -76,4 +76,4 @@ if __name__ == '__main__':
     print("'d'   Developement")
     print("'p'   Production")
     conf = input("Enter the configuration: ")
-    generateConfig(conf)
+    generate_config(conf)

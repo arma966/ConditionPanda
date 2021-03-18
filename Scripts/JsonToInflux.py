@@ -14,140 +14,154 @@ from influxdb_client.client.write_api import ASYNCHRONOUS
 from os import listdir
 from os.path import join, isfile, exists
 
-
-def openJson(FilePath):
+def open_json(FilePath):
     try:
         with open(FilePath) as f:
             content = json.load(f)
         return content
     except FileNotFoundError:
-        print("File not found")
+        print("[open_json()] File not found: " + FilePath)
     else:
         f.close()
-def fileToInflux(FilePath):
-    with open("Config.json") as f:
-        config = json.load(f)
-    f.close()
-    
-    
-    client = InfluxDBClient(url=config["InfluxDB"]["Client URL"], 
-                            token=config["InfluxDB"]["Token"])
+
+def read_txt(file_path):
+    try:
+        with open(file_path) as f:
+            content = f.readlines()
+    except FileNotFoundError:
+        print("[open txt] File not found: " + file_path)
+        return None
+    else:
+        f.close()
+        return content
+
+def fileToInflux(FilePath, client, write_api, config):  
     bucket = config["InfluxDB"]["KPI Bucket"]
     org = config["InfluxDB"]["Org"]
     
-    write_api = client.write_api(write_options=ASYNCHRONOUS)
-    
     print("Loading to influx: " + FilePath)
     
-    content = openJson(FilePath)
+    content = open_json(FilePath)
     SentLines = {}
     sensorList = list(content["S"].keys())
-    TimeKPIList = list(content["S"][sensorList[0]]["KPI"]["Time"].keys())
+    time_KPI_list = list(content["S"][sensorList[0]]["KPI"]["Time"].keys())
     FreqKPIList = list(content["S"][sensorList[0]]["KPI"]["Frequency"].keys())
     measurement = "meas"
     
     # If the KPI list are empty no data were acquired
-    if TimeKPIList == [] and FreqKPIList == []:
-        print("No data acquired")
+    if time_KPI_list == [] and FreqKPIList == []:
+        print("No data were acquired")
         return None
     # Get timestamp 
     date = datetime.strptime(content["AST"], '%m/%d/%Y %H:%M:%S.%f')
     timestamp = int(datetime.timestamp(date) * 1e9)
     
     # Iterate on Time - KPI
-    for i in range(len(TimeKPIList)): 
+    for i in range(len(time_KPI_list)): 
         # Build the tag string
         shot = list(findall("\d+",FilePath.split("\\")[-1]))[0]
-        tagString = "Sample_rate=" + str(content["SF"]) +","+\
-                    "Shot="+ shot +","+\
-                    "Sensor="+ sensorList[0].replace(" ","_") +","+\
-                    "Machine="+ content["S"][sensorList[0]]["MAC"] +","+\
-                    "KPI_Type="+ 'Time'
+        tag_string = "Sample_rate=" + str(content["SF"]) +"," \
+                      + "Shot="+ shot +"," \
+                      + "Sensor="+ sensorList[0].replace(" ","_") +"," \
+                      + "Machine="+ content["S"][sensorList[0]]["MAC"] +"," \
+                      + "KPI_Type="+ 'Time'
                     
-        fields = TimeKPIList[i]
-        data = content["S"][sensorList[0]]["KPI"]["Time"][TimeKPIList[i]]["data"]
-        dt = content["S"][sensorList[0]]["KPI"]["Time"][TimeKPIList[i]]["Dt"] # [ms]
+        fields = time_KPI_list[i]
+        data = content["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["data"]
+        dt = content["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["Dt"] # [ms]
         
         lines = [measurement
-                  + ","+tagString
+                  + ","+tag_string
                   + " "
                   + fields + "=" + str(data[d]) + " "
                   + str(timestamp+int(d*dt*1e6)) for d in range(len(data))]
         
         # Send to influx
         print("Writing: " + fields)
-        write_api.write(bucket, org, lines)
-        SentLines[TimeKPIList[i]] = lines
-    writeLog(config["InfluxDB"]["LogDir"],shot + "KPI")
+        result = write_api.write(bucket, org, lines)
+        print("Result" + str(result.get()))
+        # SentLines[time_KPI_list[i]] = lines
+        
+    write_log(config["InfluxDB"]["LogDir"],shot + "KPI")
     
     # Iterate on Frequency - KPI
     for i in range(len(FreqKPIList)): 
         # Build the tag string
         shot = list(findall("\d+",FilePath.split("\\")[-1]))[0]
-        tagString = "Sample_rate=" + str(content["SF"]) +","+\
+        tag_string = "Sample_rate=" + str(content["SF"]) +","+\
                     "Shot="+ shot +","+\
                     "Sensor="+ sensorList[0].replace(" ","_") +","+\
                     "Machine="+ content["S"][sensorList[0]]["MAC"] +","+\
                     "KPI_Type="+ 'Time'
                     
-        fields = TimeKPIList[i]
+        fields = time_KPI_list[i]
         data = content["S"][sensorList[0]]["KPI"]["Frequency"][FreqKPIList[i]]["data"]
         dt = content["S"][sensorList[0]]["KPI"]["Time"][FreqKPIList[i]]["Dt"] # [ms]
         
         lines = [measurement
-                  + ","+tagString
+                  + ","+tag_string
                   + " "
                   + fields + "=" + str(data[d]) + " "
                   + str(timestamp+int(d*dt*1e6)) for d in range(len(data))]
         
         # Send to influx
-        SentLines[TimeKPIList[i]] = lines
+        SentLines[time_KPI_list[i]] = lines
     
-def writeLog(logPath, shot):
-    with open(logPath,'a') as f:
-            f.write(shot +"\n")
-    f.close()
+def write_log(log_path, file_name):
+    try:
+        with open(log_path,'a') as f:
+                f.write(file_name +"\n")
+    except FileNotFoundError:
+        print("[write_log()] Log file doesn't exist")
+    else:
+        f.close()
 
-def to_influx(date):
+def to_influx(date_string):
     # Read the configuration file to obtain the log file path
-    with open("Config.json") as f:
-        config = json.load(f)
-    f.close()
-    logPath = config["InfluxDB"]["LogDir"]
-    couchDir = config["CouchDB"]["couchDir"]
+    config = open_json("Config.json") 
+    if config == None:
+        return 
     
-    date = datetime.strptime(date, "%Y-%m-%d")
+    client = InfluxDBClient(url=config["InfluxDB"]["Client URL"], 
+                            token=config["InfluxDB"]["Token"])
+    
+    write_api = client.write_api(write_options=ASYNCHRONOUS)
+    
+    log_path = config["InfluxDB"]["LogDir"]
+    couch_dir = config["CouchDB"]["couchDir"]
+    
+    date = datetime.strptime(date_string, "%Y-%m-%d")
     
     # Build the file path from the given date
-    fileDir = join(couchDir,str(date.year),str(date.month),str(date.day))
-    if not(exists(fileDir)):
-        print("No data avaliable in date (no folder): " + str(date.date()))
-        return None
+    couch_file_dir = join(couch_dir,str(date.year),str(date.month),str(date.day))
+    if not(exists(couch_file_dir)):
+        print("No data avaliable in date - Folder doesn't exist': " + str(date.date()))
+        return 
     else:
-        if listdir(fileDir) == []:
+        if listdir(couch_file_dir) == []:
             print("No data avaliable in date: " + str(date.date()))
-            return None
+            return 
         
-    fileList = [f for f in listdir(fileDir) if isfile(join(fileDir, f)) 
-                and not(f.find('.json') == -1) and not(f.find('KPI') == -1)]
+    couch_file_list = [f for f in listdir(couch_file_dir) \
+                       if isfile(join(couch_file_dir, f)) \
+                       and not(f.find('.json') == -1) \
+                       and not(f.find('KPI') == -1)]
     
     # For every measure in a day, check if it must be loaded, if yes load to 
     # influx
     
-    for f in fileList:
-        shot  = f.split('.')[0]
-        with open(logPath,'r') as f1:
-            logContent = f1.readlines()
-        f1.close()
-        if not(shot + "\n" in logContent):
-            FilePath = join(fileDir,f)
-            try:
-                fileToInflux(FilePath)
-            except:
-                print("Error: fileToInflux()")
-                return None
+    for f in couch_file_list:
+        file_name  = f.split('.')[0]
+        
+        log_content = read_txt(log_path)
+        if log_content == None: return 
+        
+        if not(file_name + "\n" in log_content):
+            file_path = join(couch_file_dir,f)
+            fileToInflux(file_path, client, write_api, config)
         else:
-            print(shot + " already updated")
+            print(file_name + " already updated")
+
 
 if __name__ == '__main__':
     to_influx("2021-03-17")

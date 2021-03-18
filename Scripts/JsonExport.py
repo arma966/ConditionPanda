@@ -14,12 +14,12 @@ from datetime import datetime, timedelta
 from pandas import read_csv
 from shutil import rmtree
 
-def getMetadata(FilePath):
+def get_metadata(file_path):
     # Read the firsts few lines of the *FileName* and retrieve the metadata 
     # creating a dictionary.
     metaDictionary =  {}
     read = True
-    with open(FilePath) as f:
+    with open(file_path) as f:
         while read:
             tmp = f.readline()
             if not(tmp == "\n"):
@@ -31,225 +31,241 @@ def getMetadata(FilePath):
     f.close()
     return metaDictionary
 
-def getData(FilePath):
+def get_data(file_path):
     # Skip the rows which contain the metadata and get the data from *FileName*
     # as a numpy array. 
     
     # Get the number of rows to skip
     read = True
-    with open(FilePath) as f:
-        i = 0
-        while read:
-            tmp = f.readline()
-            if tmp[0].isnumeric():
-                read = False
-                rowsToSkip = i
-            else:
-                i = i+1
-    f.close()
-    
-    # Load data as numpy array
-    data= loadtxt(FilePath, delimiter=",",skiprows=rowsToSkip)
-    return data
+    try:
+        with open(file_path) as f:
+            i = 0
+            while read:
+                tmp = f.readline()
+                if tmp[0].isnumeric():
+                    read = False
+                    rowsToSkip = i
+                else:
+                    i = i+1
+    except FileNotFoundError:
+        print("Can't retrieve the data, the file doesn't exist.")
+        return None
+    else:
+        f.close()
+        
+        # Load data as numpy array
+        data= loadtxt(file_path, delimiter=",",skiprows=rowsToSkip)
+        return data
 
-def buildKPIdictionary(fileDir):
+def build_KPI_dictionary(file_dir):
     # Read all the exported file and create a data structure based on nested
     # dictionaries. 
     
     # Get the file list
-    fileList = [f for f in listdir(fileDir) if isfile(join(fileDir, f)) 
+    file_list = [f for f in listdir(file_dir) if isfile(join(file_dir, f)) 
                         and not(f.find('_') == -1)]
     
     # IMPORTANT: for the future updates it is mandatory to iterate through 
     # the sensor's names
-    SensorName = "AI 1"
+    sensor_name = "AI 1"
     # Build KPI dictionary
-    KPIdict = {"Time": {},
+    KPI_dict = {"Time": {},
                "Frequency": {}}
     
-    for f in fileList:
-        FilePath = join(fileDir,f)
-        try:
-            data = getData(FilePath)
-            statName = f[f.find("_")+1:f.find(".")].replace(" ","_")
-            timeDict = {"Dt": round((data[1,0]-data[0,0])*1000,2),
-                        "data": data[:,1].tolist()}
-            KPIdict["Time"][statName] = timeDict
-        except:
-            print("Impossible to retrieve data from " + f)
+    for f in file_list:
+        file_path = join(file_dir,f)
+        data = get_data(file_path)
+        if data != None:
+            KPI_names = f[f.find("_")+1:f.find(".")].replace(" ","_")
+            time_dictionary = {"Dt": round((data[1,0]-data[0,0])*1000,2),
+                               "data": data[:,1].tolist()}
+            KPI_dict["Time"][KPI_names] = time_dictionary
+        
+        
     
     # Build sensor dictionary
     # Get the sensor data from the csv table
     try:
-        SensorTable = read_csv("SensorTable.csv")
-        sensorSpec = SensorTable.query("Dewe_name == "+ '"'+SensorName+'"')
-        sensorDict = {SensorName: {
-                      "MOD": sensorSpec["MOD"].to_string(index = False).replace(' ',''),
-                      "MAC": sensorSpec["MAC"].to_string(index = False).replace(' ',''),
-                      "LOC": sensorSpec["LOC"].to_string(index = False).replace(' ',''),
-                      "KPI": KPIdict
-                      }
-            }
+        sensor_table = read_csv("sensor_table.csv")
+        sensor_spec = sensor_table.query("Dewe_name == "+ '"'+sensor_name+'"')
     except KeyError:
         print("Sensor not present in the table")
-        sensorDict = {}
-        sensorDict["KPI"] = KPIdict
+        sensor_dictionary = {}
+        sensor_dictionary["KPI"] = KPI_dict
+        return None
     except FileNotFoundError:
         print("Make sure the sensor table file and the python script are in the same directory")
-        sensorDict = {}
-        sensorDict["KPI"] = KPIdict
+        sensor_dictionary = {}
+        sensor_dictionary["KPI"] = KPI_dict
+        return None
+    else:
+        sensor_dictionary = {sensor_name: {
+                      "MOD": sensor_spec["MOD"].to_string(index = False).replace(' ',''),
+                      "MAC": sensor_spec["MAC"].to_string(index = False).replace(' ',''),
+                      "LOC": sensor_spec["LOC"].to_string(index = False).replace(' ',''),
+                      "KPI": KPI_dict
+                      }
+            }
     
-    FilePath = join(fileDir,fileList[0])
-    metaDataFile = getMetadata(FilePath)
+    raw_file_path = join(file_dir,file_list[0])
+    metaDataFile = get_metadata(raw_file_path)
     
     # Build main dictionary
-    dt = datetime.strptime(metaDataFile["Start time"], '%m/%d/%Y %H:%M:%S.%f')
+    retrieved_date = datetime.strptime(metaDataFile["Start time"], '%m/%d/%Y %H:%M:%S.%f')
     delta = timedelta(milliseconds=int(metaDataFile["Post time"]))
-    endTime = dt+delta
+    endTime = retrieved_date+delta
     endTimeString = str(endTime.month) + '/' + str(endTime.day) + '/' + \
                     str(endTime.year) + ' ' + str(endTime.hour) + ':' + \
                     str(endTime.minute) + ':' + str(endTime.second) + '.' +\
                     str(endTime.microsecond)[0:-3]
-    KPIdict = {
-                "DV": sensorSpec["DV"].to_string(index = False).replace(' ',''),
-                "DAQ": sensorSpec["DAQ"].to_string(index = False).replace(' ',''),
+    KPI_dict = {
+                "DV": sensor_spec["DV"].to_string(index = False).replace(' ',''),
+                "DAQ": sensor_spec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
-                "S": sensorDict,
+                "S": sensor_dictionary,
                 "AST": metaDataFile["Start time"],
                 "AET": endTimeString,
                 "SF": metaDataFile["Sample rate"],
                 "PT": metaDataFile["Post time"],
         }
-    return KPIdict
+    return KPI_dict
 
-def buildRawDictionary(fileDir):
-    # Build the dictionary based data structure, see buildKPIdictionary().
+def build_RAW_dictionary(file_dir):
+    # Build the dictionary based data structure, see build_KPI_dictionary().
     
     # IMPORTANT: for the future updates it is mandatory to iterate through 
     # the sensor's names
-    SensorName = "AI 1"
+    sensor_name = "AI 1"
     
     # Get the file list
-    fileList = [f for f in listdir(fileDir) if isfile(join(fileDir, f)) 
+    file_list = [f for f in listdir(file_dir) if isfile(join(file_dir, f)) 
                         and f.find('_') == -1 and not(f.find('.txt') == -1) ]
     
     try:
-        FilePath = join(fileDir,fileList[0])
-        data = getData(FilePath)
+        file_path = join(file_dir,file_list[0])
+        data = get_data(file_path)
     except:
         print("Impossible to retrieve raw data")
     
     
     # Build sensor dictionary
-    SensorTable = read_csv("SensorTable.csv")
-    sensorSpec = SensorTable.query("Dewe_name == "+ '"'+SensorName+'"')
-    sensorDict = {SensorName: {
-                  "MOD": sensorSpec["MOD"].to_string(index = False).replace(' ',''),
-                  "MAC": sensorSpec["MAC"].to_string(index = False).replace(' ',''),
-                  "LOC": sensorSpec["LOC"].to_string(index = False).replace(' ',''),
+    sensor_table = read_csv("sensor_table.csv")
+    sensor_spec = sensor_table.query("Dewe_name == "+ '"'+sensor_name+'"')
+    sensor_dictionary = {sensor_name: {
+                  "MOD": sensor_spec["MOD"].to_string(index = False).replace(' ',''),
+                  "MAC": sensor_spec["MAC"].to_string(index = False).replace(' ',''),
+                  "LOC": sensor_spec["LOC"].to_string(index = False).replace(' ',''),
                   "Data": data[:,1].tolist()
                   }
         }
-    FilePath = join(fileDir,fileList[0])
-    metaDataFile = getMetadata(FilePath)
+    file_path = join(file_dir,file_list[0])
+    metaDataFile = get_metadata(file_path)
     
     # Build main dictionary
-    dt = datetime.strptime(metaDataFile["Start time"], '%m/%d/%Y %H:%M:%S.%f')
+    retrieved_date = datetime.strptime(metaDataFile["Start time"], '%m/%d/%Y %H:%M:%S.%f')
     delta = timedelta(milliseconds=int(metaDataFile["Post time"]))
-    endTime = dt+delta
-    endTimeString = str(endTime.month) + '/' + str(endTime.day) + '/' + \
-                    str(endTime.year) + ' ' + str(endTime.hour) + ':' + \
-                    str(endTime.minute) + ':' + str(endTime.second) + '.' +\
-                    str(endTime.microsecond)[0:-3]
-    KPIdict = {
-                "DV": sensorSpec["DV"].to_string(index = False).replace(' ',''),
-                "DAQ": sensorSpec["DAQ"].to_string(index = False).replace(' ',''),
+    end_time = retrieved_date + delta
+    endTimeString = str(end_time.month) + '/' + str(end_time.day) + '/' + \
+                    str(end_time.year) + ' ' + str(end_time.hour) + ':' + \
+                    str(end_time.minute) + ':' + str(end_time.second) + '.' +\
+                    str(end_time.microsecond)[0:-3]
+    KPI_dict = {
+                "DV": sensor_spec["DV"].to_string(index = False).replace(' ',''),
+                "DAQ": sensor_spec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
-                "S": sensorDict,
+                "S": sensor_dictionary,
                 "AST": metaDataFile["Start time"],
                 "AET": endTimeString,
                 "SF": int(metaDataFile["Sample rate"]),
                 "PT": int(metaDataFile["Post time"]),
         }
-    return KPIdict
+    return KPI_dict
 
-def getShot(date):
-    dt = datetime.strptime(date, '%m/%d/%Y %H:%M:%S.%f')
-    y = str(dt.year)   
-    if len(str(dt.month)) == 1:
-       m = '0' + str(dt.month)
+def get_shot(date):
+    try:
+        retrieved_date = datetime.strptime(date, '%m/%d/%Y %H:%M:%S.%f')
+    except ValueError:
+        print("[get_shot()] Wrong date format on the exported Dewesoft file.")
+        print("Make sure the system date format is m/d/yyyy h:n:s:fff")
+        return None
     else:
-        m = str(dt.month)
-    if len(str(dt.day)) == 1:
-       d = '0' + str(dt.day)
-    else:
-        d = str(dt.day)
-    if len(str(dt.hour)) == 1:
-       h = '0' + str(dt.hour)
-    else:
-        h = str(dt.hour)
-    if len(str(dt.minute)) == 1:
-       mi = '0' + str(dt.minute)
-    else:
-        mi = str(dt.minute)
-    if len(str(dt.second)) == 1:
-       s = '0' + str(dt.second)
-    else:
-        s = str(dt.second)
-    shot = y+m+d+h+mi+s
-    return shot
+        y = str(retrieved_date.year)   
+        if len(str(retrieved_date.month)) == 1:
+           m = '0' + str(retrieved_date.month)
+        else:
+            m = str(retrieved_date.month)
+        if len(str(retrieved_date.day)) == 1:
+           d = '0' + str(retrieved_date.day)
+        else:
+            d = str(retrieved_date.day)
+        if len(str(retrieved_date.hour)) == 1:
+           h = '0' + str(retrieved_date.hour)
+        else:
+            h = str(retrieved_date.hour)
+        if len(str(retrieved_date.minute)) == 1:
+           mi = '0' + str(retrieved_date.minute)
+        else:
+            mi = str(retrieved_date.minute)
+        if len(str(retrieved_date.second)) == 1:
+           s = '0' + str(retrieved_date.second)
+        else:
+            s = str(retrieved_date.second)
+        shot = y+m+d+h+mi+s
+        return shot
 
-def writeJson(data, name):
+def write_json(data, name):
     # Write the json file
     with open(name, 'w') as f:
         dump(data, f)
     f.close()
 
-def getTargetPath(couchDir, date):
+def get_target_path(couch_dir, date):
     dt = datetime.strptime(date, '%m/%d/%Y %H:%M:%S.%f')
-    targetPath = join(couchDir,str(dt.year),str(dt.month),str(dt.day))
-    if not(exists(targetPath)):
-        if not(exists(join(couchDir,str(dt.year),str(dt.month)))):
-            if not(exists(join(couchDir,str(dt.year)))):
-                mkdir(join(couchDir,str(dt.year)))
-                mkdir(join(couchDir,str(dt.year),str(dt.month)))
-                mkdir(join(couchDir,str(dt.year),str(dt.month),str(dt.day)))
+    target_path = join(couch_dir,str(dt.year),str(dt.month),str(dt.day))
+    if not(exists(target_path)):
+        if not(exists(join(couch_dir,str(dt.year),str(dt.month)))):
+            if not(exists(join(couch_dir,str(dt.year)))):
+                mkdir(join(couch_dir,str(dt.year)))
+                mkdir(join(couch_dir,str(dt.year),str(dt.month)))
+                mkdir(join(couch_dir,str(dt.year),str(dt.month),str(dt.day)))
             else:
-                mkdir(join(couchDir,str(dt.year),str(dt.month)))
-                mkdir(join(couchDir,str(dt.year),str(dt.month),str(dt.day)))
+                mkdir(join(couch_dir,str(dt.year),str(dt.month)))
+                mkdir(join(couch_dir,str(dt.year),str(dt.month),str(dt.day)))
         else:
-            mkdir(join(couchDir,str(dt.year),str(dt.month),str(dt.day)))
-    return targetPath
+            mkdir(join(couch_dir,str(dt.year),str(dt.month),str(dt.day)))
+    return target_path
 
 def to_couchDB():
     with open("Config.json") as f:
         config = load(f)
     f.close()
     
-    dataDir = config["Dewesoft"]["DataDir"]
-    couchDir = config["CouchDB"]["couchDir"]
-    DeweFolderList = [f for f in listdir(dataDir) if isdir(join(dataDir, f))]
+    data_dir = config["Dewesoft"]["data_dir"]
+    couch_dir = config["CouchDB"]["couch_dir"]
+    dewe_folder_list = [f for f in listdir(data_dir) if isdir(join(data_dir, f))]
     
-    for f in DeweFolderList:
-        path = join(dataDir,f)
-        try:
-            KPIdict = buildKPIdictionary(path)
-            rawDict = buildRawDictionary(path)
+    # For every folder created by exporting the acquired files, navigate through
+    # it and upload the data to couchDB
+    for f in dewe_folder_list:
+        dewe_data_path = join(data_dir,f)
         
-            shot = getShot(KPIdict["AST"])
-            
-            targetPath = getTargetPath(couchDir, KPIdict["AST"])
-            
-            KPIdictName = shot + "KPI.json"
-            rawDictName = shot + "Raw.json"
-            print("Uploading shot: " + shot + " to CouchDB")
-            writeJson(KPIdict, join(targetPath,KPIdictName))
-            writeJson(rawDict, join(targetPath,rawDictName))
-        except:
-            print("It was not possible to load the data to couchDB")
-        else:
-            rmtree(path)
-            remove(path + '.dxd')
+        KPI_dict = build_KPI_dictionary(dewe_data_path)
+        RAW_dict = build_RAW_dictionary(dewe_data_path)
+        
+        if KPI_dict != None and RAW_dict != None:
+            shot = get_shot(KPI_dict["AST"])
+            if shot != None:
+                target_path = get_target_path(couch_dir, KPI_dict["AST"])
+                
+                KPI_dictName = shot + "KPI.json"
+                RAW_dictName = shot + "Raw.json"
+                print("Uploading shot: " + shot + " to CouchDB")
+                write_json(KPI_dict, join(target_path,KPI_dictName))
+                write_json(RAW_dict, join(target_path,RAW_dictName))
+                
+                # Remove dewesoft files
+                rmtree(dewe_data_path)
+                remove(dewe_data_path + '.dxd')
 
 if __name__ == '__main__':
     to_couchDB()
