@@ -7,19 +7,19 @@
 # ____________________________________________________________________________
 
 from numpy import loadtxt
-from json import dump 
+from json import dump, load
 from os import listdir
-from os.path import join, isfile
+from os.path import join, isfile, isdir
 from datetime import datetime, timedelta
 
 from pandas import read_csv
 
-def getMetadata(FileName):
+def getMetadata(FilePath):
     # Read the firsts few lines of the *FileName* and retrieve the metadata 
     # creating a dictionary.
     metaDictionary =  {}
     read = True
-    with open(FileName) as f:
+    with open(FilePath) as f:
         while read:
             tmp = f.readline()
             if not(tmp == "\n"):
@@ -31,13 +31,13 @@ def getMetadata(FileName):
     f.close()
     return metaDictionary
 
-def getData(FileName):
+def getData(FilePath):
     # Skip the rows which contain the metadata and get the data from *FileName*
     # as a numpy array. 
     
     # Get the number of rows to skip
     read = True
-    with open(FileName) as f:
+    with open(FilePath) as f:
         i = 0
         while read:
             tmp = f.readline()
@@ -49,7 +49,7 @@ def getData(FileName):
     f.close()
     
     # Load data as numpy array
-    data= loadtxt(FileName, delimiter=",",skiprows=rowsToSkip)
+    data= loadtxt(FilePath, delimiter=",",skiprows=rowsToSkip)
     return data
 
 def buildDataDictionary(fileDir):
@@ -98,7 +98,8 @@ def buildDataDictionary(fileDir):
         sensorDict = {}
         sensorDict["KPI"] = KPIdict
     
-    metaDataFile = getMetadata(fileList[0])
+    FilePath = join(fileDir,fileList[0])
+    metaDataFile = getMetadata(FilePath)
     
     # Build main dictionary
     dt = datetime.strptime(metaDataFile["Start time"], '%m/%d/%Y %H:%M:%S.%f')
@@ -132,7 +133,8 @@ def buildRawDictionary(fileDir):
                         and f.find('_') == -1 and not(f.find('.txt') == -1) ]
     
     try:
-        data = getData(fileList[0])
+        FilePath = join(fileDir,fileList[0])
+        data = getData(FilePath)
     except:
         print("Impossible to retrieve raw data")
     
@@ -147,8 +149,8 @@ def buildRawDictionary(fileDir):
                   "Data": data[:,1].tolist()
                   }
         }
-    
-    metaDataFile = getMetadata(fileList[0])
+    FilePath = join(fileDir,fileList[0])
+    metaDataFile = getMetadata(FilePath)
     
     # Build main dictionary
     dt = datetime.strptime(metaDataFile["Start time"], '%m/%d/%Y %H:%M:%S.%f')
@@ -198,6 +200,27 @@ def getShot(date):
 
 def to_json(data, name):
     # Write the json file
-    with open(name +'.json', 'w') as f:
+    couchDir = "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB"
+    with open(couchDir + '\\' + name +'.json', 'w') as f:
         dump(data, f)
     f.close()
+    
+def to_couchDB():
+    with open("NewConfig.txt") as f:
+        config = load(f)
+    f.close()
+    
+    dataDir = "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\Scripts\\AutomationData"
+    folderList = [f for f in listdir(dataDir) if isdir(join(dataDir, f))]
+    
+    for f in folderList:
+        path = join(dataDir,f)
+        dataDict = buildDataDictionary(path)
+        rawDict = buildRawDictionary(path)
+    
+        shot = getShot(dataDict["AST"])
+        print("Uploading shot: " + shot)
+        dataDictName = shot + "KPI"
+        rawDictName = shot + "Raw"
+        to_json(dataDict, dataDictName)
+        to_json(rawDict, rawDictName)

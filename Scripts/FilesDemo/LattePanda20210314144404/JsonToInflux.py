@@ -8,20 +8,39 @@
 
 import json 
 from re import findall
-from datetime import datetime
+from datetime import datetime, timedelta
+from influxdb_client import InfluxDBClient
+from influxdb_client.client.write_api import ASYNCHRONOUS
+from os import listdir
+from os.path import join, isfile, exists
+import sys
 
-def openJson(FileName):
+def openJson(FilePath):
     try:
-        with open(FileName) as f:
+        with open(FilePath) as f:
             content = json.load(f)
         return content
     except FileNotFoundError:
         print("File not found")
     else:
         f.close()
-def KPIto_influx(FileName):
-    content = openJson(FileName)
-    SentFiles = {}
+def fileToInflux(FilePath):
+    with open("NewConfig.json") as f:
+        config = json.load(f)
+    f.close()
+    
+    
+    client = InfluxDBClient(url=config["InfluxDB"]["Client URL"], 
+                            token=config["InfluxDB"]["Token"])
+    bucket = config["InfluxDB"]["KPI Bucket"]
+    org = config["InfluxDB"]["Org"]
+    
+    write_api = client.write_api(write_options=ASYNCHRONOUS)
+    
+    print("Loading to influx: " + FilePath)
+    
+    content = openJson(FilePath)
+    SentLines = {}
     sensorList = list(content["S"].keys())
     TimeKPIList = list(content["S"][sensorList[0]]["KPI"]["Time"].keys())
     FreqKPIList = list(content["S"][sensorList[0]]["KPI"]["Frequency"].keys())
@@ -34,9 +53,10 @@ def KPIto_influx(FileName):
     # Iterate on Time - KPI
     for i in range(len(TimeKPIList)): 
         # Build the tag string
+        shot = list(findall("\d+",FilePath.split("\\")[-1]))[0]
         tagString = "Sample_rate=" + str(content["SF"]) +","+\
-                    "Shot="+ list(findall("\d+",FileName))[0] +","+\
-                    "Sensor="+ sensorList[0] +","+\
+                    "Shot="+ shot +","+\
+                    "Sensor="+ sensorList[0].replace(" ","_") +","+\
                     "Machine="+ content["S"][sensorList[0]]["MAC"] +","+\
                     "KPI_Type="+ 'Time'
                     
@@ -51,14 +71,18 @@ def KPIto_influx(FileName):
                   + str(timestamp+int(d*dt*1e6)) for d in range(len(data))]
         
         # Send to influx
-        SentFiles[TimeKPIList[i]] = lines
+        print("Writing: " + fields)
+        write_api.write(bucket, org, lines)
+        SentLines[TimeKPIList[i]] = lines
+    writeLog("Log.txt",shot + "KPI")
     
     # Iterate on Frequency - KPI
     for i in range(len(FreqKPIList)): 
         # Build the tag string
+        shot = list(findall("\d+",FilePath.split("\\")[-1]))[0]
         tagString = "Sample_rate=" + str(content["SF"]) +","+\
-                    "Shot="+ list(findall("\d+",FileName))[0] +","+\
-                    "Sensor="+ sensorList[0] +","+\
+                    "Shot="+ shot +","+\
+                    "Sensor="+ sensorList[0].replace(" ","_") +","+\
                     "Machine="+ content["S"][sensorList[0]]["MAC"] +","+\
                     "KPI_Type="+ 'Time'
                     
@@ -73,9 +97,31 @@ def KPIto_influx(FileName):
                   + str(timestamp+int(d*dt*1e6)) for d in range(len(data))]
         
         # Send to influx
-        SentFiles[TimeKPIList[i]] = lines
-    return SentFiles
+        SentLines[TimeKPIList[i]] = lines
+    writeLog("Log.txt",shot + "RAW")
     
+def writeLog(logPath, shot):
+    with open(logPath,'r') as f:
+        logContent = f.readlines()
+    with open(logPath,'a') as f:
+        if shot + "\n" in logContent:
+            print(shot + " already updated")
+        else:
+            f.write("ciao\n")
+    f.close()
 
-FileName = "20210314144406Math.json"
-sent = KPIto_influx(FileName)
+        
+couchDir = "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB"
+daysBack = 2
+fromDate = datetime.now() - timedelta(days = daysBack)
+
+fileDir = join(couchDir,str(fromDate.year),str(fromDate.month),str(fromDate.day))
+if not(exists(fileDir)):
+    print("No data avaliable in date: " + str(fromDate))
+    sys.exit()
+    
+fileList = [f for f in listdir(fileDir) if isfile(join(fileDir, f)) 
+            and not(f.find('.json') == -1) and not(f.find('KPI') == -1)]
+for f in fileList:
+    FilePath = join(fileDir,f)
+    fileToInflux(FilePath)

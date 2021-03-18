@@ -11,7 +11,8 @@
         "Org": "myorg",
         "Token": "mytoken",
         "Measurement": "Monitoring",
-        "Client URL": "http",
-        "KPI Bucket": "KPI_db"
+        "Client URL": "http://localhost:8086",
+        "KPI Bucket": "KPI_db",
+        "AutoLoad": "True"
     }
 }

@@ -4,7 +4,8 @@ influxDict = {"Org": "myorg",
               "Token": "mytoken",
               "Measurement": "Monitoring",
               "Client URL": "http://localhost:8086",
-              "KPI Bucket": "KPI_db"
+              "KPI Bucket": "KPI_db",
+              "AutoLoad": "True"
     }
 
 deweDict = {"DataDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\Scripts\\AutomationData",

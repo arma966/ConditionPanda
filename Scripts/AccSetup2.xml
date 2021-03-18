@@ -8,11 +8,11 @@
 			</Software>
 			<Computer>
 				<HDD_C_Total>353975 MB</HDD_C_Total>
-				<HDD_C_Free>119056 MB</HDD_C_Free>
+				<HDD_C_Free>114684 MB</HDD_C_Free>
 				<HDD_D_Total>953852 MB</HDD_D_Total>
-				<HDD_D_Free>582454 MB</HDD_D_Free>
+				<HDD_D_Free>581856 MB</HDD_D_Free>
 				<RAM_Total>32653 MB</RAM_Total>
-				<RAM_Free>17289 MB</RAM_Free>
+				<RAM_Free>17108 MB</RAM_Free>
 				<OS_Type>Windows 10 Build 19042</OS_Type>
 			</Computer>
 			<Devices>
@@ -403,7 +403,7 @@
 						<OutputChannel>
 							<DisplayColor>#00FF00</DisplayColor>
 							<Name IsDefault="True">AI 1</Name>
-							<Description>Prova</Description>
+							<Description>setup2</Description>
 							<DefaultUnit>False</DefaultUnit>
 							<Unit>m/s2</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>
@@ -728,7 +728,7 @@
 				</MultifileOptions>
 			</Storing>
 			<UserInterface>
-				<SelectedSetupTab>GeneralSetupTabSheet</SelectedSetupTab>
+				<SelectedSetupTab>AISetupSheet</SelectedSetupTab>
 				<Displays>
 					<Images></Images>
 					<CurrentDisplayFrames>0</CurrentDisplayFrames>
@@ -751,8 +751,8 @@
 									<Markers></Markers>
 									<XAxis>
 										<Ticks>
-											<Min>13.3552</Min>
-											<Max>18.3552</Max>
+											<Min>0.1456</Min>
+											<Max>5.1456</Max>
 										</Ticks>
 										<Delta>4.9984</Delta>
 									</XAxis>
