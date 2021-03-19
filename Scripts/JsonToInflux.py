@@ -132,13 +132,13 @@ def connection_avaliable(url):
     port = split('//|:',url)[3]
         
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex((influx_ip,port))
+    result = sock.connect_ex((influx_ip,int(port)))
     if result == 0:
         return True
     else:
         print("[connection_avaliable()] Can't connect to influxDB on")
         print("ip: " + influx_ip)
-        print("port: " + str(port))
+        print("port: " + port)
         return False
     sock.close()
         
