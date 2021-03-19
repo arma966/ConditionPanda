@@ -1,6 +1,6 @@
 from datetime import datetime
 
-def DeweInit(dw, DataDir, SetupFile):
+def DeweInit(dw, data_dir, setup_file):
     print("Initializing Dewesoft... ")
     
     dw.Init()
@@ -17,13 +17,13 @@ def DeweInit(dw, DataDir, SetupFile):
     # build channel list
     dw.Data.BuildChannelList()
     
-    with open(SetupFile, 'r') as file:
+    with open(setup_file, 'r') as file:
         data = file.read()
     file.close
     
     dw.LoadSetupFromXML(data)
     
-    dw.SetMainDataDir(DataDir)
+    dw.SetMaindata_dir(data_dir)
     
 def getMeasName():
     MeasName = str(datetime.now())
