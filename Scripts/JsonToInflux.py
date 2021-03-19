@@ -138,7 +138,7 @@ def connection_avaliable(url):
     else:
         print("[connection_avaliable()] Can't connect to influxDB on")
         print("ip: " + influx_ip)
-        print("port: " + port)
+        print("port: " + str(port))
         return False
     sock.close()
         
