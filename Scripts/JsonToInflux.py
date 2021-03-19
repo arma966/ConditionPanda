@@ -124,10 +124,13 @@ def bucket_exists(client, config):
             response = True
             return response
 
-def connection_avaliable():
+def connection_avaliable(url):
     import socket
-    influx_ip = '192.168.1.5'
-    port = 8086
+    from re import split
+
+    influx_ip = split('//|:',url)[2]
+    port = split('//|:',url)[3]
+        
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     result = sock.connect_ex((influx_ip,port))
     if result == 0:
@@ -142,10 +145,13 @@ def connection_avaliable():
 def to_influx(date_string):
     # Read the configuration file to obtain the log file path
     config = open_json("Config.json") 
-    if config == None or not connection_avaliable():
-        return 
     
-    client = InfluxDBClient(url=config["InfluxDB"]["Client URL"], 
+    if config == None: return
+    
+    url=config["InfluxDB"]["Client URL"]
+    if not connection_avaliable(url): return 
+    
+    client = InfluxDBClient(url=url, 
                             token=config["InfluxDB"]["Token"])
     
     if not bucket_exists(client, config):
