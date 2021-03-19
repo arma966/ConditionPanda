@@ -1,10 +1,12 @@
-# ____________________________________________________________________________
-# Utilities to create a dictionary based data structure from the Dewesoft-exported
-# files. The data structure is then coverted to the json format. 
-#
-# Author: Armenante Davide
-# Last update: 15/3/2021
-# ____________________________________________________________________________
+"""
+____________________________________________________________________________
+Utilities to create a dictionary based data structure from the Dewesoft-exported
+files. The data structure is then coverted to the json format. 
+
+Author: Armenante Davide
+Last update: 15/3/2021
+____________________________________________________________________________
+"""
 
 from numpy import loadtxt
 from json import dump, load

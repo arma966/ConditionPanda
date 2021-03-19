@@ -123,12 +123,26 @@ def bucket_exists(client, config):
         if buckets_dir["buckets"][i]["name"] == config["InfluxDB"]["KPI Bucket"]:
             response = True
             return response
-        
+
+def connection_avaliable():
+    import socket
+    influx_ip = '192.168.1.5'
+    port = 8086
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex((influx_ip,port))
+    if result == 0:
+        return True
+    else:
+        print("[connection_avaliable()] Can't connect to influxDB on")
+        print("ip: " + influx_ip)
+        print("port: " + port)
+        return False
+    sock.close()
         
 def to_influx(date_string):
     # Read the configuration file to obtain the log file path
     config = open_json("Config.json") 
-    if config == None:
+    if config == None or not connection_avaliable():
         return 
     
     client = InfluxDBClient(url=config["InfluxDB"]["Client URL"], 
