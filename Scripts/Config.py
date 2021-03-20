@@ -22,15 +22,15 @@ def test_configFile():
         for key in config[section]:
             key_list.append(key)
 
-    
+
     # Check if key_list is a subset of production_key_list
     common_elements = [ele for ele in key_list \
                        if (ele in production_key_list)]
-    
+
     missing_keys = []
     for key in production_key_list:
         if key not in common_elements:
-            missing_keys.append(key) 
+            missing_keys.append(key)
     return missing_keys
 
 def writeConfig():
@@ -42,7 +42,7 @@ def writeConfig():
     config["INFLUXDB"]["InfluxURL"]         = UrlE.get()
     config["DEWESOFT"]["RecordDuration"]    = RecE.get()
     config["DEWESOFT"]["SamplingFrequency"] = ComboSampleR.get()
-    
+
     with open(ConfigFile,'w') as f:
         config.write(f)
     f.close()
@@ -50,7 +50,7 @@ def writeConfig():
     dw.Measure()
     dw.MeasureSampleRate = int(config["DEWESOFT"]["SamplingFrequency"])
     print("Configuration saved")
-        
+
 def Load():
     dw.Measure()
     je.to_couchDB()
@@ -61,15 +61,15 @@ def Measure():
     msname = dwa.getMeasName()
     FileName = config["DEWESOFT"]["FileName"] + msname
     dwa.deweAuto(dw,FileName, DataDir)
-    
-    
+
+
     if checkVar.get() == True:
         print("Auto loading")
         dw.Measure()
         je.to_couchDB()
         dateToLoad = str(date.today())
-        jti.to_influx(dateToLoad)    
-    
+        jti.to_influx(dateToLoad)
+
 def LoadSetup():
     dw.LoadSetup(join(mypath,config["DEWESOFT"]["SetupFile"]))
 
@@ -85,7 +85,7 @@ global ConfigFile
 ConfigFile = "config.ini"
 config = configparser.ConfigParser()
 response = config.read(ConfigFile)
-if response == []: 
+if response == []:
     print("Can't find the config file")
     sys.exit()
 else:
@@ -94,8 +94,8 @@ else:
         print("Invalid configuration file, the following keys are missing:")
         print(missing_keys)
         sys.exit()
-        
-    
+
+
 root = Tk()
 
 mypath = dirname(realpath(__file__))
@@ -164,7 +164,7 @@ UrlE = Entry(root, width = EntryLen)
 UrlE.grid(row=10,column=1,padx = 20,pady = 4, sticky=W)
 
 checkVar = BooleanVar()
-checkAutoload = Checkbutton(root, text='Auto load',variable=checkVar, 
+checkAutoload = Checkbutton(root, text='Auto load',variable=checkVar,
                             onvalue=True, offvalue=False, command=SetAutoLoad)
 checkAutoload.place(x = round(0.8*windowWidth), y = round(.9*windowHeight))
 
@@ -194,15 +194,15 @@ checkVar.set(bool(config["INFLUXDB"]["AutoLoad"]))
 DataDir = normpath(config["DEWESOFT"]["DataDir"])
 SetupFile = config["DEWESOFT"]["SetupFile"]
 PostTime    = config["DEWESOFT"]["RecordDuration"]
-
 # Check if the application is already running
-dw = Dispatch("Dewesoft.App")
-
 if not(dwa.isRunning()):
+    dw = Dispatch("Dewesoft.App")
     dwa.DeweInit(dw, DataDir, SetupFile)
     dw.Trigger.PostTime = PostTime
     print('Waiting for the sensor to set-up (15s)')
     time.sleep(15)
+else:
+    dw = Dispatch("Dewesoft.App")
 print("Ready")
 
 root.mainloop()
