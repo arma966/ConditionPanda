@@ -78,9 +78,11 @@ def fileToInflux(FilePath, client, write_api, config):
                   + str(timestamp+int(d*dt*1e6)) for d in range(len(data))]
         
         # Send to influx
-        print("Writing: " + fields)
         result = write_api.write(bucket, org, lines)
-        print("Result" + str(result.get()))
+        print("Writing: " + fields)
+        if result != None:
+            print("Something went wrong")
+            print("write_api result: " + str(result))
         # SentLines[time_KPI_list[i]] = lines
         
     write_log(config["INFLUXDB"]["log_dir"],shot + "KPI")
@@ -106,7 +108,8 @@ def fileToInflux(FilePath, client, write_api, config):
                   + str(timestamp+int(d*dt*1e6)) for d in range(len(data))]
         
         # Send to influx
-        SentLines[time_KPI_list[i]] = lines
+        # SentLines[time_KPI_list[i]] = lines
+    
     
 def write_log(log_path, file_name):
     try:
@@ -117,6 +120,7 @@ def write_log(log_path, file_name):
     else:
         f.close()
 
+
 def bucket_exists(client, config):
     response = False
     buckets_dir = client.buckets_api().find_buckets().to_dict()
@@ -124,6 +128,7 @@ def bucket_exists(client, config):
         if buckets_dir["buckets"][i]["name"] == config["INFLUXDB"]["KPIbucket"]:
             response = True
             return response
+
 
 def connection_avaliable(url):
     import socket
@@ -142,7 +147,8 @@ def connection_avaliable(url):
         print("port: " + port)
         return False
     sock.close()
-        
+
+
 def to_influx(date_string):
     # Read the configuration file to obtain the log file path
     ConfigFile = "config.ini"

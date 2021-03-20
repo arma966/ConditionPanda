@@ -119,7 +119,7 @@ def build_KPI_dictionary(file_dir):
     endTime = retrieved_date+delta
     endTimeString = str(endTime.month) + '/' + str(endTime.day) + '/' + \
                     str(endTime.year) + ' ' + str(endTime.hour) + ':' + \
-                    str(endTime.minute) + ':' + str(endTime.second) + '.' +\
+                    str(endTime.minute) + ':' + str(endTime.second) + '.' + \
                     str(endTime.microsecond)[0:-3]
     KPI_dict = {
                 "_id": get_shot(metaDataFile["Start time"]),
@@ -171,9 +171,10 @@ def build_RAW_dictionary(file_dir):
     end_time = retrieved_date + delta
     endTimeString = str(end_time.month) + '/' + str(end_time.day) + '/' + \
                     str(end_time.year) + ' ' + str(end_time.hour) + ':' + \
-                    str(end_time.minute) + ':' + str(end_time.second) + '.' +\
+                    str(end_time.minute) + ':' + str(end_time.second) + '.' + \
                     str(end_time.microsecond)[0:-3]
     KPI_dict = {
+                "_id": get_shot(metaDataFile["Start time"]),
                 "DV": sensor_spec["DV"].to_string(index = False).replace(' ',''),
                 "DAQ": sensor_spec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
