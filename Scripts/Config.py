@@ -34,21 +34,21 @@ def test_configFile():
     return missing_keys
 
 def writeConfig():
-    config["DEWESOFT"]["DataDir"]           = DirE.get()
-    config["DEWESOFT"]["SetupFile"]         = SetupE.get()
-    config["INFLUXDB"]["Measurement"]       = MeasE.get()
+    config["DEWESOFT"]["data_dir"]           = DirE.get()
+    config["DEWESOFT"]["setup_file"]         = SetupE.get()
+    config["INFLUXDB"]["measurement"]       = MeasE.get()
     config["INFLUXDB"]["Org"]               = OrgE.get()
     config["INFLUXDB"]["KPIbucket"]         = Bucket1E.get()
     config["INFLUXDB"]["InfluxURL"]         = UrlE.get()
-    config["DEWESOFT"]["RecordDuration"]    = RecE.get()
-    config["DEWESOFT"]["SamplingFrequency"] = ComboSampleR.get()
+    config["DEWESOFT"]["record_duration"]    = RecE.get()
+    config["DEWESOFT"]["sampling_frequency"] = ComboSampleR.get()
 
     with open(ConfigFile,'w') as f:
         config.write(f)
     f.close()
-    dw.Trigger.PostTime = int(config["DEWESOFT"]["RecordDuration"])
+    dw.Trigger.PostTime = int(config["DEWESOFT"]["record_duration"])
     dw.Measure()
-    dw.MeasureSampleRate = int(config["DEWESOFT"]["SamplingFrequency"])
+    dw.MeasureSampleRate = int(config["DEWESOFT"]["sampling_frequency"])
     print("Configuration saved")
 
 def Load():
@@ -59,7 +59,7 @@ def Load():
 
 def Measure():
     msname = dwa.getMeasName()
-    FileName = config["DEWESOFT"]["FileName"] + msname
+    FileName = config["DEWESOFT"]["file_name"] + msname
     dwa.deweAuto(dw,FileName, DataDir)
 
 
@@ -71,10 +71,10 @@ def Measure():
         jti.to_influx(dateToLoad)
 
 def LoadSetup():
-    dw.LoadSetup(join(mypath,config["DEWESOFT"]["SetupFile"]))
+    dw.LoadSetup(join(mypath,config["DEWESOFT"]["setup_file"]))
 
 def SetAutoLoad():
-    config["INFLUXDB"]["AutoLoad"] = str(checkVar.get())
+    config["INFLUXDB"]["auto_load"] = str(checkVar.get())
     with open(ConfigFile,'w') as f:
         config.write(f)
     f.close()
@@ -181,15 +181,15 @@ LoadBtn = Button(root, text = "Load",width = 16, command=Load)
 LoadBtn.place(x = round(0.8*windowWidth), y = round(0.8*windowHeight))
 #______________________________________________________________________________
 
-DirE.insert(0, config["DEWESOFT"]["DataDir"])
-SetupE.insert(0, config["DEWESOFT"]["SetupFile"])
-MeasE.insert(0, config["INFLUXDB"]["Measurement"])
+DirE.insert(0, config["DEWESOFT"]["data_dir"])
+SetupE.insert(0, config["DEWESOFT"]["setup_file"])
+MeasE.insert(0, config["INFLUXDB"]["measurement"])
 OrgE.insert(0, config["INFLUXDB"]["Org"])
 Bucket1E.insert(0, config["INFLUXDB"]["KPIbucket"])
 UrlE.insert(0, config["INFLUXDB"]["InfluxURL"])
 RecE.insert(0, config["DEWESOFT"]["RecordDuration"])
-ComboSampleR.insert(0, config["DEWESOFT"]["SamplingFrequency"])
-checkVar.set(bool(config["INFLUXDB"]["AutoLoad"]))
+ComboSampleR.insert(0, config["DEWESOFT"]["sampling_frequency"])
+checkVar.set(bool(config["INFLUXDB"]["auto_load"]))
 
 DataDir = normpath(config["DEWESOFT"]["DataDir"])
 SetupFile = config["DEWESOFT"]["SetupFile"]

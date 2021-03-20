@@ -13,6 +13,7 @@ from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import ASYNCHRONOUS
 from os import listdir
 from os.path import join, isfile, exists
+import configparser
 
 def open_json(FilePath):
     try:
@@ -36,8 +37,8 @@ def read_txt(file_path):
         return content
 
 def fileToInflux(FilePath, client, write_api, config):  
-    bucket = config["InfluxDB"]["KPI Bucket"]
-    org = config["InfluxDB"]["Org"]
+    bucket = config["INFLUXDB"]["KPIbucket"]
+    org = config["INFLUXDB"]["org"]
     
     print("Loading to influx: " + FilePath)
     
@@ -82,7 +83,7 @@ def fileToInflux(FilePath, client, write_api, config):
         print("Result" + str(result.get()))
         # SentLines[time_KPI_list[i]] = lines
         
-    write_log(config["InfluxDB"]["LogDir"],shot + "KPI")
+    write_log(config["INFLUXDB"]["log_dir"],shot + "KPI")
     
     # Iterate on Frequency - KPI
     for i in range(len(FreqKPIList)): 
@@ -120,7 +121,7 @@ def bucket_exists(client, config):
     response = False
     buckets_dir = client.buckets_api().find_buckets().to_dict()
     for i in range(len(buckets_dir["buckets"])):
-        if buckets_dir["buckets"][i]["name"] == config["InfluxDB"]["KPI Bucket"]:
+        if buckets_dir["buckets"][i]["name"] == config["INFLUXDB"]["KPIbucket"]:
             response = True
             return response
 
@@ -144,23 +145,23 @@ def connection_avaliable(url):
         
 def to_influx(date_string):
     # Read the configuration file to obtain the log file path
-    config = open_json("Config.json") 
+    ConfigFile = "config.ini"
+    config = configparser.ConfigParser()
+    config.read(ConfigFile)
     
-    if config == None: return
-    
-    url=config["InfluxDB"]["Client URL"]
+    url=config["INFLUXDB"]["influxurl"]
     if not connection_avaliable(url): return 
     
     client = InfluxDBClient(url=url, 
-                            token=config["InfluxDB"]["Token"])
+                            token=config["INFLUXDB"]["token"])
     
     if not bucket_exists(client, config):
         print("The bucket doesn't exist")
         return
     write_api = client.write_api(write_options=ASYNCHRONOUS)
     
-    log_path = config["InfluxDB"]["LogDir"]
-    couch_dir = config["CouchDB"]["couchDir"]
+    log_path = config["INFLUXDB"]["log_dir"]
+    couch_dir = config["COUCHDB"]["couch_dir"]
     
     date = datetime.strptime(date_string, "%Y-%m-%d")
     

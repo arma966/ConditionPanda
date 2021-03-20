@@ -4,17 +4,18 @@ Utilities to create a dictionary based data structure from the Dewesoft-exported
 files. The data structure is then coverted to the json format. 
 
 Author: Armenante Davide
-Last update: 15/3/2021
+Last update: 20/3/2021
 ____________________________________________________________________________
 """
 
 from numpy import loadtxt
-from json import dump, load
 from os import listdir, mkdir, remove
 from os.path import join, isfile, isdir, exists
 from datetime import datetime, timedelta
 from pandas import read_csv
 from shutil import rmtree
+import configparser
+from json import dump 
 
 def get_metadata(file_path):
     # Read the firsts few lines of the *FileName* and retrieve the metadata 
@@ -238,12 +239,12 @@ def get_target_path(couch_dir, date):
     return target_path
 
 def to_couchDB():
-    with open("Config.json") as f:
-        config = load(f)
-    f.close()
+    ConfigFile = "config.ini"
+    config = configparser.ConfigParser()
+    config.read(ConfigFile)
     
-    data_dir = config["Dewesoft"]["DataDir"]
-    couch_dir = config["CouchDB"]["couchDir"]
+    data_dir = config["DEWESOFT"]["data_dir"]
+    couch_dir = config["COUCHDB"]["couch_dir"]
     dewe_folder_list = [f for f in listdir(data_dir) if isdir(join(data_dir, f))]
     
     if dewe_folder_list == []:
