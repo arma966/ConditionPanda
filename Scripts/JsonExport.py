@@ -122,6 +122,7 @@ def build_KPI_dictionary(file_dir):
                     str(endTime.minute) + ':' + str(endTime.second) + '.' +\
                     str(endTime.microsecond)[0:-3]
     KPI_dict = {
+                "_id": get_shot(metaDataFile["Start time"]),
                 "DV": sensor_spec["DV"].to_string(index = False).replace(' ',''),
                 "DAQ": sensor_spec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
