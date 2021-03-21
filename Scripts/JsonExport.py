@@ -119,7 +119,7 @@ def build_KPI_dictionary(file_dir):
     delta = timedelta(milliseconds=int(metaDataFile["Post time"]))
     end_time = retrieved_date + delta
     
-    json_id = "KPI-" + get_shot(metaDataFile["Start time"])
+    json_id = "KPI-" + get_shot(retrieved_date.isoformat())
     KPI_dict = {
                 "_id": json_id,
                 "_rev": "virgin",
@@ -170,7 +170,7 @@ def build_RAW_dictionary(file_dir):
     delta = timedelta(milliseconds=int(metaDataFile["Post time"]))
     end_time = retrieved_date + delta
     
-    json_id = "RAW-" + get_shot(metaDataFile["Start time"])
+    json_id = "RAW-" + get_shot(retrieved_date.isoformat())
     KPI_dict = {
                 "_id": json_id,
                 "_rev": "virgin",
