@@ -14,6 +14,8 @@ from influxdb_client.client.write_api import ASYNCHRONOUS
 from os import listdir
 from os.path import join, isfile, exists
 import configparser
+import requests
+from requests.auth import HTTPBasicAuth
 
 def open_json(FilePath):
     try:
@@ -36,7 +38,7 @@ def read_txt(file_path):
         f.close()
         return content
 
-def fileToInflux(FilePath, client, write_api, config):  
+def fileToInflux1(FilePath, client, write_api, config):  
     bucket = config["INFLUXDB"]["KPIbucket"]
     org = config["INFLUXDB"]["org"]
     
@@ -111,8 +113,8 @@ def fileToInflux(FilePath, client, write_api, config):
         
         # Send to influx
         # SentLines[time_KPI_list[i]] = lines
-    
-    
+        
+
 def write_log(log_path, file_name):
     try:
         with open(log_path,'a') as f:
@@ -151,7 +153,7 @@ def connection_avaliable(url):
     sock.close()
 
 
-def to_influx(date_string):
+def to_influx1(date_string):
     # Read the configuration file to obtain the log file path
     ConfigFile = "config.ini"
     config = configparser.ConfigParser()
@@ -203,7 +205,41 @@ def to_influx(date_string):
         else:
             print(file_name + " already updated")
 
-
+def to_influx(date_string):
+    # Read the configuration file to obtain the log file path
+    ConfigFile = "config.ini"
+    config = configparser.ConfigParser()
+    config.read(ConfigFile)
+    
+    url=config["INFLUXDB"]["influxurl"]
+    if not connection_avaliable(url): return 
+    
+    client = InfluxDBClient(url=url, 
+                            token=config["INFLUXDB"]["token"])
+    
+    if not bucket_exists(client, config):
+        print("The bucket doesn't exist")
+        return
+    write_api = client.write_api(write_options=ASYNCHRONOUS)
+    
+    log_path = config["INFLUXDB"]["log_dir"]
+    couch_dir = config["COUCHDB"]["couch_dir"]
+    username = "LattepandaCouch"
+    password = "peanut96"
+    
+    
+    try:
+        resp = requests.get(url,auth=HTTPBasicAuth(username, password))
+    except:
+        print("Can't retrieve the data from CouchDB, an exception occurred")
+    else: 
+        if resp.status_code != 200:
+            print(resp.text)
+            print("Can't retrieve the data from CouchDB, status code: " \
+                  + str(resp.status_code))
+        else: 
+            print("Data retrieved from CouchDB")
+    
     
 if __name__ == '__main__':
     to_influx("2021-03-17")

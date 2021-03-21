@@ -18,6 +18,7 @@ import configparser
 from json import dump 
 import requests
 from requests.auth import HTTPBasicAuth
+import pandas as pd
 
 def get_metadata(file_path):
     # Read the firsts few lines of the *FileName* and retrieve the metadata 
@@ -261,7 +262,6 @@ def to_couchDB():
     config.read(ConfigFile)
     
     data_dir = config["DEWESOFT"]["data_dir"]
-    couch_dir = config["COUCHDB"]["couch_dir"]
     
     couch_url = config["COUCHDB"]["couch_url"]
     dewe_folder_list = [f for f in listdir(data_dir) if isdir(join(data_dir, f))]
@@ -269,12 +269,35 @@ def to_couchDB():
     username = "LattepandaCouch"
     password = "peanut96"
     
+    ht = pd.read_csv("history_table.csv")
+    new_file_name = "KPI-111111114"
+    new_file_entry = {"file_name": new_file_name, 
+                "couch_db": False, 
+                "influx_db": False
+        }
     if dewe_folder_list == []:
         print("There are no data acquired by the DAQ")
         return
+    # Check if the file exist in the table
+    query = ht[(ht["file_name"] == new_file_name)]
+    if query.empty:
+        ht = ht.append(new_file_entry, ignore_index=True)
+        ht.to_csv("history_table.csv", index = False)
     
-    # For every folder created by exporting the acquired files, navigate through
-    # it and upload the data to couchDB
+    
+    # Check if the file has already been loaded on couchDB
+    query = ht[(ht["file_name"] == new_file_name) & (ht["couch_db"] == False)]
+    if not query.empty:
+        # load in couchDB
+        row_index = query.index[0]
+        ht.loc[row_index,"couch_db"] = True
+        ht.to_csv("history_table.csv", index = False)
+    else:
+        print(new_file_name + " already uploaded to couchDB")
+    '''
+    | For every folder created by exporting the acquired files, navigate through
+    | it and upload the data to couchDB
+    '''
     for f in dewe_folder_list:
         dewe_data_path = join(data_dir,f)
         
@@ -295,9 +318,11 @@ def to_couchDB():
                 else: 
                     if resp.status_code != 201:
                         print(resp.text)
-                        print("status code: " + str(resp.status_code))
+                        print("Error, can't load the file on CouchDB: " \
+                              + str(resp.status_code))
                     else:
-                        print("loading successful: " + str(resp.status_code))
+                        print("CouchDB loading successful: " \
+                              + str(resp.status_code))
                 
                 # Remove dewesoft files
                 rmtree(dewe_data_path)
