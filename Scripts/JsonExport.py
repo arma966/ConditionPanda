@@ -204,7 +204,7 @@ def write_json(data, name):
     f.close()
 
 def get_target_path(couch_dir, date):
-    dt = datetime.strptime(date, '%m/%d/%Y %H:%M:%S.%f')
+    dt = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f')
     target_path = join(couch_dir,str(dt.year),str(dt.month),str(dt.day))
     if not(exists(target_path)):
         if not(exists(join(couch_dir,str(dt.year),str(dt.month)))):
