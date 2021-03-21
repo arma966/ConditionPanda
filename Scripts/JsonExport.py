@@ -187,34 +187,14 @@ def build_RAW_dictionary(file_dir):
 
 def get_shot(date):
     try:
-        retrieved_date = datetime.strptime(date, '%m/%d/%Y %H:%M:%S.%f')
+        datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f')
     except ValueError:
         print("[get_shot()] Wrong date format on the exported Dewesoft file.")
-        print("Make sure the system date format is m/d/yyyy h:n:s:fff")
+        print("Make sure the system date format follows the ISO standard 8601")
         return None
     else:
-        y = str(retrieved_date.year)   
-        if len(str(retrieved_date.month)) == 1:
-           m = '0' + str(retrieved_date.month)
-        else:
-            m = str(retrieved_date.month)
-        if len(str(retrieved_date.day)) == 1:
-           d = '0' + str(retrieved_date.day)
-        else:
-            d = str(retrieved_date.day)
-        if len(str(retrieved_date.hour)) == 1:
-           h = '0' + str(retrieved_date.hour)
-        else:
-            h = str(retrieved_date.hour)
-        if len(str(retrieved_date.minute)) == 1:
-           mi = '0' + str(retrieved_date.minute)
-        else:
-            mi = str(retrieved_date.minute)
-        if len(str(retrieved_date.second)) == 1:
-           s = '0' + str(retrieved_date.second)
-        else:
-            s = str(retrieved_date.second)
-        shot = y+m+d+h+mi+s
+        shot = date.replace("-","").replace("T","").replace(":","")
+        shot = shot.replace(".","")[0,-3]
         return shot
 
 def write_json(data, name):
