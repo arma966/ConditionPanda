@@ -1,27 +1,21 @@
 import requests
-import configparser
-from os.path import normpath 
-import sys
-# url = "http://localhost:5984/"
+from requests.auth import HTTPBasicAuth
+import json
 
-# try:
-#     r = requests.get(url)
-# except:
-#     print("connection error")
-# else:
-#     content = r.json()
-#     print(r.content.decode())
-    
+username = "LattepandaCouch"
+password = "peanut96"
+file_id = "KPI-20210321154238651"
+url = "http://localhost:5984/students/" + file_id
 
-config = configparser.ConfigParser()
+with open('file.json','r') as f:
+    data = json.load(f)
+f.close()
 
-
-resp = config.read("config.ini")
-if resp == []:
-    print("The file doesn't exists")
-    sys.exit()
-
-login = config['INFLUXDB']
-print(login["KPIbucket"])
-
-config['INFLUXDB']
+try:
+    resp = requests.put(url,auth=HTTPBasicAuth(username, password),json = data)
+except:
+    print("Can't load the file on CouchDB, an exception occurred")
+else: 
+    if resp.status_code != 201:
+        print(resp.text)
+        print("status code: " + str(resp.status_code))
