@@ -308,8 +308,6 @@ def to_couchDB():
                 
                     upload_history_table(KPI_file_name, loaded_KPI)
             
-           
-            
             if connection_avaliable:
                 try:
                     resp = requests.put(couch_url+"/students/"+RAW_file_name,
@@ -331,14 +329,15 @@ def to_couchDB():
                               + str(resp.status_code))
                     
                         upload_history_table(RAW_file_name, loaded_RAW)
-                    
+        else:
+            upload_history_table(RAW_file_name, loaded_RAW)
+            upload_history_table(KPI_file_name, loaded_KPI)      
+            
         if loaded_KPI and loaded_RAW:
             # Remove dewesoft files
             rmtree(dewe_data_path)
             remove(dewe_data_path + '.dxd')
-    else:
-        upload_history_table(RAW_file_name, loaded_RAW)
-        upload_history_table(KPI_file_name, loaded_KPI)
+
 
 if __name__ == '__main__':
     to_couchDB()
