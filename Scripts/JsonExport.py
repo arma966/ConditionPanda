@@ -194,7 +194,7 @@ def get_shot(date):
         return None
     else:
         shot = date.replace("-","").replace("T","").replace(":","")
-        shot = shot.replace(".","")[0,-3]
+        shot = shot.replace(".","")[0:-3]
         return shot
 
 def write_json(data, name):
