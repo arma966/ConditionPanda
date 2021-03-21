@@ -14,9 +14,9 @@ import sys
 
 def test_configFile():
     production_key_list = ['org','token','measurement','influxurl','kpibucket', \
-                           'autoload','logdir','datadir','setupfile','filename', \
-                           'recordduration','samplingfrequency','sensorname', \
-                           'couchdir', 'couchurl']
+                           'auto_load','log_dir','data_dir','setup_file','file_name', \
+                           'record_duration','sampling_frequency','sensor_name', \
+                           'couch_dir', 'couch_url']
     key_list= []
     for section in config:
         for key in config[section]:
@@ -187,13 +187,13 @@ MeasE.insert(0, config["INFLUXDB"]["measurement"])
 OrgE.insert(0, config["INFLUXDB"]["Org"])
 Bucket1E.insert(0, config["INFLUXDB"]["KPIbucket"])
 UrlE.insert(0, config["INFLUXDB"]["InfluxURL"])
-RecE.insert(0, config["DEWESOFT"]["RecordDuration"])
+RecE.insert(0, config["DEWESOFT"]["record_duration"])
 ComboSampleR.insert(0, config["DEWESOFT"]["sampling_frequency"])
 checkVar.set(bool(config["INFLUXDB"]["auto_load"]))
 
-DataDir = normpath(config["DEWESOFT"]["DataDir"])
-SetupFile = config["DEWESOFT"]["SetupFile"]
-PostTime    = config["DEWESOFT"]["RecordDuration"]
+DataDir = normpath(config["DEWESOFT"]["data_dir"])
+SetupFile = config["DEWESOFT"]["setup_file"]
+PostTime    = config["DEWESOFT"]["record_duration"]
 # Check if the application is already running
 if not(dwa.isRunning()):
     dw = Dispatch("Dewesoft.App")
