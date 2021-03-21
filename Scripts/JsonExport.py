@@ -16,6 +16,8 @@ from pandas import read_csv
 from shutil import rmtree
 import configparser
 from json import dump 
+import requests
+from requests.auth import HTTPBasicAuth
 
 def get_metadata(file_path):
     # Read the firsts few lines of the *FileName* and retrieve the metadata 
@@ -217,7 +219,7 @@ def get_target_path(couch_dir, date):
             mkdir(join(couch_dir,str(dt.year),str(dt.month),str(dt.day)))
     return target_path
 
-def to_couchDB():
+def to_couchDB1():
     ConfigFile = "config.ini"
     config = configparser.ConfigParser()
     config.read(ConfigFile)
@@ -248,6 +250,52 @@ def to_couchDB():
                 print("Uploading shot: " + shot + " to CouchDB")
                 write_json(KPI_dict, join(target_path,KPI_dictName))
                 write_json(RAW_dict, join(target_path,RAW_dictName))
+                
+                # Remove dewesoft files
+                rmtree(dewe_data_path)
+                remove(dewe_data_path + '.dxd')
+
+def to_couchDB():
+    ConfigFile = "config.ini"
+    config = configparser.ConfigParser()
+    config.read(ConfigFile)
+    
+    data_dir = config["DEWESOFT"]["data_dir"]
+    couch_dir = config["COUCHDB"]["couch_dir"]
+    
+    couch_url = config["COUCHDB"]["couch_url"]
+    dewe_folder_list = [f for f in listdir(data_dir) if isdir(join(data_dir, f))]
+    
+    username = "LattepandaCouch"
+    password = "peanut96"
+    
+    if dewe_folder_list == []:
+        print("There are no data acquired by the DAQ")
+        return
+    
+    # For every folder created by exporting the acquired files, navigate through
+    # it and upload the data to couchDB
+    for f in dewe_folder_list:
+        dewe_data_path = join(data_dir,f)
+        
+        KPI_dict = build_KPI_dictionary(dewe_data_path)
+        RAW_dict = build_RAW_dictionary(dewe_data_path)
+        
+        if KPI_dict is not(None) and RAW_dict is not(None):
+            shot = get_shot(KPI_dict["AST"])
+            if shot is not(None):
+                
+                try:
+                    resp = requests.put(couch_url+"/students/KPI-"+shot,
+                                        auth=HTTPBasicAuth(username, password),
+                                        json = KPI_dict)
+                except:
+                    print("Can't load the file on CouchDB, an exception occurred")
+                    return
+                else: 
+                    if resp.status_code != 201:
+                        print(resp.text)
+                        print("status code: " + str(resp.status_code))
                 
                 # Remove dewesoft files
                 rmtree(dewe_data_path)

@@ -51,7 +51,7 @@ def production_config():
     config["INFLUXDB"]["Org"] = "myorg"
     config["INFLUXDB"]["Token"] = "mytoken"
     config["INFLUXDB"]["KPIbucket"] = "KPI_db"
-    config["INFLUXDB"]["InfluxURL"] = "http://localhost:8086"
+    config["INFLUXDB"]["InfluxURL"] = "http://192.168.1.5:8086"
     config["INFLUXDB"]["auto_load"] = "True"
     config["INFLUXDB"]["log_dir"] = normpath(log_dir)
     

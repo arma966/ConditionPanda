@@ -14,9 +14,9 @@ import sys
 
 def test_configFile():
     production_key_list = ['org','token','measurement','influxurl','kpibucket', \
-                           'autoload','logdir','datadir','setupfile','filename', \
-                           'recordduration','samplingfrequency','sensorname', \
-                           'couchdir', 'couchurl']
+                           'auto_load','log_dir','data_dir','setup_file','file_name', \
+                           'record_duration','sampling_frequency','sensor_name', \
+                           'couch_dir', 'couch_url']
     key_list= []
     for section in config:
         for key in config[section]:
