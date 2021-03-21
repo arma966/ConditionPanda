@@ -296,6 +296,8 @@ def to_couchDB():
                     if resp.status_code != 201:
                         print(resp.text)
                         print("status code: " + str(resp.status_code))
+                    else:
+                        print("loading successful: " + str(resp.status_code))
                 
                 # Remove dewesoft files
                 rmtree(dewe_data_path)
