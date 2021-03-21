@@ -114,21 +114,21 @@ def build_KPI_dictionary(file_dir):
     metaDataFile = get_metadata(raw_file_path)
     
     # Build main dictionary
+    # Build main dictionary
     retrieved_date = datetime.strptime(metaDataFile["Start time"], '%m/%d/%Y %H:%M:%S.%f')
     delta = timedelta(milliseconds=int(metaDataFile["Post time"]))
-    endTime = retrieved_date+delta
-    endTimeString = str(endTime.month) + '/' + str(endTime.day) + '/' + \
-                    str(endTime.year) + ' ' + str(endTime.hour) + ':' + \
-                    str(endTime.minute) + ':' + str(endTime.second) + '.' + \
-                    str(endTime.microsecond)[0:-3]
+    end_time = retrieved_date + delta
+    
+    json_id = "KPI-" + get_shot(metaDataFile["Start time"])
     KPI_dict = {
-                "_id": get_shot(metaDataFile["Start time"]),
+                "_id": json_id,
+                "_rev": "virgin",
                 "DV": sensor_spec["DV"].to_string(index = False).replace(' ',''),
                 "DAQ": sensor_spec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
                 "S": sensor_dictionary,
-                "AST": metaDataFile["Start time"],
-                "AET": endTimeString,
+                "AST": retrieved_date.isoformat(),
+                "AET": end_time.isoformat(),
                 "SF": metaDataFile["Sample rate"],
                 "PT": metaDataFile["Post time"],
         }
@@ -169,18 +169,17 @@ def build_RAW_dictionary(file_dir):
     retrieved_date = datetime.strptime(metaDataFile["Start time"], '%m/%d/%Y %H:%M:%S.%f')
     delta = timedelta(milliseconds=int(metaDataFile["Post time"]))
     end_time = retrieved_date + delta
-    endTimeString = str(end_time.month) + '/' + str(end_time.day) + '/' + \
-                    str(end_time.year) + ' ' + str(end_time.hour) + ':' + \
-                    str(end_time.minute) + ':' + str(end_time.second) + '.' + \
-                    str(end_time.microsecond)[0:-3]
+    
+    json_id = "RAW-" + get_shot(metaDataFile["Start time"])
     KPI_dict = {
-                "_id": get_shot(metaDataFile["Start time"]),
+                "_id": json_id,
+                "_rev": "virgin",
                 "DV": sensor_spec["DV"].to_string(index = False).replace(' ',''),
                 "DAQ": sensor_spec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
                 "S": sensor_dictionary,
-                "AST": metaDataFile["Start time"],
-                "AET": endTimeString,
+                "AST": retrieved_date.isoformat(),
+                "AET": end_time.isoformat(),
                 "SF": int(metaDataFile["Sample rate"]),
                 "PT": int(metaDataFile["Post time"]),
         }

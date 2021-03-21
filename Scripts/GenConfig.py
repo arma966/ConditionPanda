@@ -56,7 +56,7 @@ def production_config():
     config["INFLUXDB"]["log_dir"] = normpath(log_dir)
     
     config["COUCHDB"]["couch_dir"] = normpath(couch_dir)
-    config["COUCHDB"]["couch_url"] = "http://localhost:5984"
+    config["COUCHDB"]["couch_url"] = "http://192.168.1.5:5984"
 
     with open(ConfigFile,'w') as f:
         config.write(f)
