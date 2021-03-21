@@ -279,6 +279,7 @@ def to_couchDB():
             shot = get_shot(KPI_dict["AST"])
             if shot is not(None):
                 new_file_name = "KPI-"+shot
+                loaded= False
                 try:
                     resp = requests.put(couch_url+"/students/"+new_file_name,
                                         auth=HTTPBasicAuth(username, password),
