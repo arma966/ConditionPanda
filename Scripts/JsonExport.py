@@ -286,6 +286,7 @@ def to_couchDB():
                                         json = KPI_dict)
                 except:
                     print("Can't load the file on CouchDB, an exception occurred")
+                    upload_history_table(new_file_name, loaded)
                     return
                 else: 
                     if resp.status_code != 201:
@@ -301,7 +302,7 @@ def to_couchDB():
                         rmtree(dewe_data_path)
                         remove(dewe_data_path + '.dxd')
                     
-                upload_history_table(new_file_name, loaded)
+                        upload_history_table(new_file_name, loaded)
 
 if __name__ == '__main__':
     to_couchDB()
