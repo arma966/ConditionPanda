@@ -275,44 +275,51 @@ def to_couchDB():
         KPI_dict = build_KPI_dictionary(dewe_data_path)
         RAW_dict = build_RAW_dictionary(dewe_data_path)
         
-        if KPI_dict is not(None) and RAW_dict is not(None):
-            shot = get_shot(KPI_dict["AST"])
-            if shot is not(None):
-                new_file_name = "KPI-"+shot
-                loaded_KPI = False
-                loaded_RAW = False
-                try:
-                    resp = requests.put(couch_url+"/students/"+new_file_name,
-                                        auth=HTTPBasicAuth(username, password),
-                                        json = KPI_dict)
-                    
-                except:
-                    print("Can't load the file on CouchDB, an exception occurred")
-                    upload_history_table(new_file_name, loaded_KPI)
-                    return
-                else: 
-                    if resp.status_code != 201:
-                        print(resp.text)
-                        print("Error, can't load the file on CouchDB: " \
-                              + str(resp.status_code))
-                    else:
-                        loaded_KPI = True
-                        print("CouchDB loading successful: " \
-                              + str(resp.status_code))
-                    
-                        upload_history_table(new_file_name, loaded_KPI)
+        loaded_KPI = False
+        loaded_RAW = False
+        
+        shot = get_shot(KPI_dict["AST"])
+        if shot is None: return
+        
+        KPI_file_name = "KPI-"+shot
+        RAW_file_name = "RAW-"+shot
+        
+        connection_avaliable = True
+        if KPI_dict is not(None) and RAW_dict is not(None) and connection_avaliable:
+            
+            try:
+                resp = requests.put(couch_url+"/students/"+KPI_file_name,
+                                    auth=HTTPBasicAuth(username, password),
+                                    json = KPI_dict)
                 
-                new_file_name = "RAW-"+shot
+            except:
+                print("Can't load the file on CouchDB, an exception occurred")
+                upload_history_table(KPI_file_name, loaded_KPI)
+                connection_avaliable = False
+            else: 
+                if resp.status_code != 201:
+                    print(resp.text)
+                    print("Error, can't load the file on CouchDB: " \
+                          + str(resp.status_code))
+                else:
+                    loaded_KPI = True
+                    print("CouchDB loading successful: " \
+                          + str(resp.status_code))
                 
+                    upload_history_table(KPI_file_name, loaded_KPI)
+            
+           
+            
+            if connection_avaliable:
                 try:
-                    resp = requests.put(couch_url+"/students/"+new_file_name,
+                    resp = requests.put(couch_url+"/students/"+RAW_file_name,
                                         auth=HTTPBasicAuth(username, password),
                                         json = RAW_dict)
                     
                 except:
                     print("Can't load the file on CouchDB, an exception occurred")
-                    upload_history_table(new_file_name, loaded_RAW)
-                    return
+                    upload_history_table(RAW_file_name, loaded_RAW)
+                    connection_avaliable = False
                 else: 
                     if resp.status_code != 201:
                         print(resp.text)
@@ -323,12 +330,15 @@ def to_couchDB():
                         print("CouchDB loading successful: " \
                               + str(resp.status_code))
                     
-                        upload_history_table(new_file_name, loaded_RAW)
-                        
-            if loaded_KPI and loaded_RAW:
-                # Remove dewesoft files
-                rmtree(dewe_data_path)
-                remove(dewe_data_path + '.dxd')
+                        upload_history_table(RAW_file_name, loaded_RAW)
+                    
+        if loaded_KPI and loaded_RAW:
+            # Remove dewesoft files
+            rmtree(dewe_data_path)
+            remove(dewe_data_path + '.dxd')
+    else:
+        upload_history_table(RAW_file_name, loaded_RAW)
+        upload_history_table(KPI_file_name, loaded_KPI)
 
 if __name__ == '__main__':
     to_couchDB()
