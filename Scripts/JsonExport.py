@@ -279,14 +279,16 @@ def to_couchDB():
             shot = get_shot(KPI_dict["AST"])
             if shot is not(None):
                 new_file_name = "KPI-"+shot
-                loaded= False
+                loaded_KPI = False
+                loaded_RAW = False
                 try:
                     resp = requests.put(couch_url+"/students/"+new_file_name,
                                         auth=HTTPBasicAuth(username, password),
                                         json = KPI_dict)
+                    
                 except:
                     print("Can't load the file on CouchDB, an exception occurred")
-                    upload_history_table(new_file_name, loaded)
+                    upload_history_table(new_file_name, loaded_KPI)
                     return
                 else: 
                     if resp.status_code != 201:
@@ -294,15 +296,39 @@ def to_couchDB():
                         print("Error, can't load the file on CouchDB: " \
                               + str(resp.status_code))
                     else:
-                        loaded= True
+                        loaded_KPI = True
                         print("CouchDB loading successful: " \
                               + str(resp.status_code))
-                
-                        # Remove dewesoft files
-                        rmtree(dewe_data_path)
-                        remove(dewe_data_path + '.dxd')
                     
-                        upload_history_table(new_file_name, loaded)
+                        upload_history_table(new_file_name, loaded_KPI)
+                
+                new_file_name = "RAW-"+shot
+                
+                try:
+                    resp = requests.put(couch_url+"/students/"+new_file_name,
+                                        auth=HTTPBasicAuth(username, password),
+                                        json = RAW_dict)
+                    
+                except:
+                    print("Can't load the file on CouchDB, an exception occurred")
+                    upload_history_table(new_file_name, loaded_RAW)
+                    return
+                else: 
+                    if resp.status_code != 201:
+                        print(resp.text)
+                        print("Error, can't load the file on CouchDB: " \
+                              + str(resp.status_code))
+                    else:
+                        loaded_RAW= True
+                        print("CouchDB loading successful: " \
+                              + str(resp.status_code))
+                    
+                        upload_history_table(new_file_name, loaded_RAW)
+                        
+            if loaded_KPI and loaded_RAW:
+                # Remove dewesoft files
+                rmtree(dewe_data_path)
+                remove(dewe_data_path + '.dxd')
 
 if __name__ == '__main__':
     to_couchDB()
