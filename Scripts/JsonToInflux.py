@@ -43,18 +43,20 @@ def fileToInflux(FilePath, client, write_api, config):
     print("Loading to influx: " + FilePath)
     
     content = open_json(FilePath)
-    SentLines = {}
+    # SentLines = {}
     sensorList = list(content["S"].keys())
     time_KPI_list = list(content["S"][sensorList[0]]["KPI"]["Time"].keys())
     FreqKPIList = list(content["S"][sensorList[0]]["KPI"]["Frequency"].keys())
-    measurement = "meas"
+    
+    AAA = 0 # Integrate measurement with config file
+    measurement = "meas" 
     
     # If the KPI list are empty no data were acquired
     if time_KPI_list == [] and FreqKPIList == []:
         print("No data were acquired")
         return None
-    # Get timestamp 
-    date = datetime.strptime(content["AST"], '%m/%d/%Y %H:%M:%S.%f')
+    # Get timestamp - format ISO 8601
+    date = datetime.strptime(content["AST"], '%Y-%m-%dT%H:%M:%S.%f')
     timestamp = int(datetime.timestamp(date) * 1e9)
     
     # Iterate on Time - KPI
