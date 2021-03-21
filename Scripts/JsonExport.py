@@ -122,7 +122,6 @@ def build_KPI_dictionary(file_dir):
     json_id = "KPI-" + get_shot(retrieved_date.isoformat())
     KPI_dict = {
                 "_id": json_id,
-                "_rev": "virgin",
                 "DV": sensor_spec["DV"].to_string(index = False).replace(' ',''),
                 "DAQ": sensor_spec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
@@ -173,7 +172,6 @@ def build_RAW_dictionary(file_dir):
     json_id = "RAW-" + get_shot(retrieved_date.isoformat())
     KPI_dict = {
                 "_id": json_id,
-                "_rev": "virgin",
                 "DV": sensor_spec["DV"].to_string(index = False).replace(' ',''),
                 "DAQ": sensor_spec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
