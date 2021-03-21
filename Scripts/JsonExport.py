@@ -256,6 +256,32 @@ def to_couchDB1():
                 rmtree(dewe_data_path)
                 remove(dewe_data_path + '.dxd')
 
+def upload_history_table(new_file_name, loaded):
+    ht = pd.read_csv("history_table.csv")
+    
+    new_file_entry = {"file_name": new_file_name, 
+                "couch_db": False, 
+                "influx_db": False
+        }
+    
+    
+    # Check if the file exist in the table
+    query = ht[(ht["file_name"] == new_file_name)]
+    if query.empty:
+        ht = ht.append(new_file_entry, ignore_index=True)
+        ht.to_csv("history_table.csv", index = False)
+    
+    
+    # Check if the file has already been loaded on couchDB
+    query = ht[(ht["file_name"] == new_file_name) & (ht["couch_db"] == False)]
+    if not query.empty:
+        if loaded:
+            row_index = query.index[0]
+            ht.loc[row_index,"couch_db"] = True
+            ht.to_csv("history_table.csv", index = False)
+    else:
+        print(new_file_name + " already uploaded to couchDB")
+        
 def to_couchDB():
     ConfigFile = "config.ini"
     config = configparser.ConfigParser()
@@ -269,31 +295,11 @@ def to_couchDB():
     username = "LattepandaCouch"
     password = "peanut96"
     
-    ht = pd.read_csv("history_table.csv")
-    new_file_name = "KPI-111111114"
-    new_file_entry = {"file_name": new_file_name, 
-                "couch_db": False, 
-                "influx_db": False
-        }
+   
     if dewe_folder_list == []:
         print("There are no data acquired by the DAQ")
         return
-    # Check if the file exist in the table
-    query = ht[(ht["file_name"] == new_file_name)]
-    if query.empty:
-        ht = ht.append(new_file_entry, ignore_index=True)
-        ht.to_csv("history_table.csv", index = False)
-    
-    
-    # Check if the file has already been loaded on couchDB
-    query = ht[(ht["file_name"] == new_file_name) & (ht["couch_db"] == False)]
-    if not query.empty:
-        # load in couchDB
-        row_index = query.index[0]
-        ht.loc[row_index,"couch_db"] = True
-        ht.to_csv("history_table.csv", index = False)
-    else:
-        print(new_file_name + " already uploaded to couchDB")
+
     '''
     | For every folder created by exporting the acquired files, navigate through
     | it and upload the data to couchDB
@@ -307,9 +313,9 @@ def to_couchDB():
         if KPI_dict is not(None) and RAW_dict is not(None):
             shot = get_shot(KPI_dict["AST"])
             if shot is not(None):
-                
+                new_file_name = "KPI-"+shot
                 try:
-                    resp = requests.put(couch_url+"/students/KPI-"+shot,
+                    resp = requests.put(couch_url+"/students/"+new_file_name,
                                         auth=HTTPBasicAuth(username, password),
                                         json = KPI_dict)
                 except:
@@ -321,12 +327,15 @@ def to_couchDB():
                         print("Error, can't load the file on CouchDB: " \
                               + str(resp.status_code))
                     else:
+                        loaded= True
                         print("CouchDB loading successful: " \
                               + str(resp.status_code))
                 
-                # Remove dewesoft files
-                rmtree(dewe_data_path)
-                remove(dewe_data_path + '.dxd')
+                        # Remove dewesoft files
+                        rmtree(dewe_data_path)
+                        remove(dewe_data_path + '.dxd')
+                    
+                    upload_history_table(new_file_name, loaded)
 
 if __name__ == '__main__':
     to_couchDB()
