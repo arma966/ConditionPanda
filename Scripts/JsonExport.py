@@ -329,6 +329,9 @@ def to_couchDB():
                               + str(resp.status_code))
                     
                         upload_history_table(RAW_file_name, loaded_RAW)
+            else:
+                loaded_RAW = False
+                upload_history_table(RAW_file_name, loaded_RAW)
         else:
             upload_history_table(RAW_file_name, loaded_RAW)
             upload_history_table(KPI_file_name, loaded_KPI)      
