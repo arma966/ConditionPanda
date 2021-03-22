@@ -16,6 +16,7 @@ from os.path import join, isfile, exists
 import configparser
 import requests
 from requests.auth import HTTPBasicAuth
+import pandas as pd
 
 def open_json(FilePath):
     try:
@@ -38,7 +39,7 @@ def read_txt(file_path):
         f.close()
         return content
 
-def fileToInflux1(FilePath, client, write_api, config):  
+def fileToInflux(FilePath, client, write_api, config):  
     bucket = config["INFLUXDB"]["KPIbucket"]
     org = config["INFLUXDB"]["org"]
     
@@ -205,13 +206,26 @@ def to_influx1(date_string):
         else:
             print(file_name + " already updated")
 
-def to_influx(date_string):
+def get_file_to_load():
+    file_to_load = []
+    ht = pd.read_csv("history_table.csv")
+    
+    # # Check if the file has already been loaded on couchDB
+    query = ht[(ht["influx_db"] == False) & (ht["file_name"].str.contains("KPI"))]
+    file_to_load = query["file_name"].to_list()
+    return file_to_load
+
+def to_influx():
+    print("**************************")
+    print("******Influx Loading******")
+    print("**************************")
     # Read the configuration file to obtain the log file path
     ConfigFile = "config.ini"
     config = configparser.ConfigParser()
     config.read(ConfigFile)
     
     url=config["INFLUXDB"]["influxurl"]
+    
     if not connection_avaliable(url): return 
     
     client = InfluxDBClient(url=url, 
@@ -222,23 +236,27 @@ def to_influx(date_string):
         return
     write_api = client.write_api(write_options=ASYNCHRONOUS)
     
-    log_path = config["INFLUXDB"]["log_dir"]
-    couch_dir = config["COUCHDB"]["couch_dir"]
     username = "LattepandaCouch"
     password = "peanut96"
+    couch_url = "http://localhost:5984/students/"
     
+    file_to_load = get_file_to_load()
     
-    try:
-        resp = requests.get(url,auth=HTTPBasicAuth(username, password))
-    except:
-        print("Can't retrieve the data from CouchDB, an exception occurred")
-    else: 
-        if resp.status_code != 200:
-            print(resp.text)
-            print("Can't retrieve the data from CouchDB, status code: " \
-                  + str(resp.status_code))
+    for file in file_to_load:
+        print("Attempting to load " + file)
+        try:
+            resp = requests.get(couch_url + file,
+                                auth=HTTPBasicAuth(username, password))
+        except:
+            print("Can't retrieve the data from CouchDB, an exception occurred")
         else: 
-            print("Data retrieved from CouchDB")
+            if resp.status_code != 200:
+                print(resp.text)
+                print("Can't retrieve the data from CouchDB, status code: " \
+                      + str(resp.status_code))
+            else: 
+                print("Data retrieved from CouchDB, format: " + str(type(resp.json)))
+            
     
     
 if __name__ == '__main__':
