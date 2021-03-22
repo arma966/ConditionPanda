@@ -245,6 +245,7 @@ def to_influx():
     for file in file_to_load:
         print("Attempting to load " + file)
         try:
+            print("Couch url: " + couch_url + file)
             resp = requests.get(couch_url + file,
                                 auth=HTTPBasicAuth(username, password))
         except:

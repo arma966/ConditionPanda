@@ -1,12 +1,18 @@
-import pandas as pd
+import requests
+from requests.auth import HTTPBasicAuth
 
-def get_file_to_load():
-    file_to_load = []
-    ht = pd.read_csv("history_table.csv")
+username = "LattepandaCouch"
+password = "peanut96"
+couch_url = "http://localhost:5984/students/"
+
+
+file_list = ["KPI-20210321230701824",
+             "KPI-20210321233203776"]
+for file in file_list:
+    resp = requests.get(couch_url + file,
+                                    auth=HTTPBasicAuth(username, password))
     
-    # # Check if the file has already been loaded on couchDB
-    query = ht[(ht["influx_db"] == False) & (ht["file_name"].str.contains("KPI"))]
-    file_to_load = query["file_name"].to_list()
-    return file_to_load
-
-file_to_load = get_file_to_load()
+    print(resp.json())
+    print("")
+    print("")
+    print("")
