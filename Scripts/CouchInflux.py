@@ -7,7 +7,7 @@ from influxdb_client import InfluxDBClient, WriteOptions,BucketsApi,Organization
 import sys
 from requests.auth import HTTPBasicAuth
 
-def test_influx_connection(bucket_name, org_name):
+def test_influx_connection(client,bucket_name, org_name):
     buckets_client= BucketsApi(client)
     bucket_names = []
     bucket_obj = buckets_client.find_buckets().to_dict()
@@ -95,49 +95,49 @@ def fileToInflux(content):
                                 "time": actual_time.isoformat()})
     return data_points
         
-        
-url = "http://localhost:8086"
-client = InfluxDBClient(url=url,
-                            token="mytoken")
-bucket_name = "KPI_db"
-org_name = "myorg"
-
-write_client = client.write_api(write_options=WriteOptions(batch_size=5000,
-                                                             flush_interval=10_000,
-                                                             jitter_interval=2_000,
-                                                             retry_interval=5_000,
-                                                             max_retries=5,
-                                                             max_retry_delay=30_000,
-                                                             exponential_base=2))
-
-if not test_influx_connection(bucket_name, org_name): sys.exit()
-
-file_to_load = get_file_to_load()
-username = "LattepandaCouch"
-password = "peanut96"
-couch_url = "http://192.168.1.5:5984/students/"
-
-for file in file_to_load:
-    try:
-            resp = requests.get(couch_url + file,
-                                auth=HTTPBasicAuth(username, password))
-    except Exception as e:
-        print("Can't retrieve the data from CouchDB, an exception occurred")
-        print("Exception: " + str(e))
-    else:
-        if resp.status_code != 200:
-            print(resp.text)
-            print("Can't retrieve the data from CouchDB, status code: " \
-                  + str(resp.status_code))
+def to_influx():
+    url = "http://localhost:8086"
+    client = InfluxDBClient(url=url,
+                                token="mytoken")
+    bucket_name = "KPI_db"
+    org_name = "myorg"
+    
+    write_client = client.write_api(write_options=WriteOptions(batch_size=5000,
+                                                                 flush_interval=10_000,
+                                                                 jitter_interval=2_000,
+                                                                 retry_interval=5_000,
+                                                                 max_retries=5,
+                                                                 max_retry_delay=30_000,
+                                                                 exponential_base=2))
+    
+    if not test_influx_connection(client, bucket_name, org_name): sys.exit()
+    
+    file_to_load = get_file_to_load()
+    username = "LattepandaCouch"
+    password = "peanut96"
+    couch_url = "http://192.168.1.5:5984/students/"
+    
+    for file in file_to_load:
+        try:
+                resp = requests.get(couch_url + file,
+                                    auth=HTTPBasicAuth(username, password))
+        except Exception as e:
+            print("Can't retrieve the data from CouchDB, an exception occurred")
+            print("Exception: " + str(e))
         else:
-            print("Data retrieved from CouchDB")
-            data_points = fileToInflux(resp.json())
-    try:
-        write_client.write(bucket_name, org_name, data_points)
-    except Exception as e:
-        print("Exceptio: " + str(e))
-    else:
-        print(str(file) + " loaded successfully")
-        upload_history_table(file)
+            if resp.status_code != 200:
+                print(resp.text)
+                print("Can't retrieve the data from CouchDB, status code: " \
+                      + str(resp.status_code))
+            else:
+                print("Data retrieved from CouchDB")
+                data_points = fileToInflux(resp.json())
+                try:
+                    write_client.write(bucket_name, org_name, data_points)
+                except Exception as e:
+                    print("Exceptio: " + str(e))
+                else:
+                    print(str(file) + " loaded successfully")
+                    upload_history_table(file)
     
 

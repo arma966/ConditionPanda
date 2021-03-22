@@ -11,6 +11,7 @@ import JsonToInflux as jti
 import configparser
 from os.path import normpath
 import sys
+import CouchInflux as ci
 
 def test_configFile():
     production_key_list = ['org','token','measurement','influxurl','kpibucket', \
@@ -54,7 +55,7 @@ def writeConfig():
 def Load():
     dw.Measure()
     je.to_couchDB()
-    jti.to_influx()
+    ci.to_influx()
 
 def Measure():
     msname = dwa.getMeasName()
@@ -66,7 +67,7 @@ def Measure():
         print("Auto loading")
         dw.Measure()
         je.to_couchDB()
-        jti.to_influx()
+        ci.to_influx()
 
 def LoadSetup():
     dw.LoadSetup(join(mypath,config["DEWESOFT"]["setup_file"]))
