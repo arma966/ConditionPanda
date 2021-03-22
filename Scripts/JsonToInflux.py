@@ -227,7 +227,7 @@ def to_influx():
     url=config["INFLUXDB"]["influxurl"]
 
     if not connection_avaliable(url): return
-
+    
     client = InfluxDBClient(url=url,
                             token=config["INFLUXDB"]["token"])
 
@@ -245,7 +245,6 @@ def to_influx():
     for file in file_to_load:
         print("Attempting to load " + file)
         try:
-            print("Couch url: " + couch_url + file)
             resp = requests.get(couch_url + file,
                                 auth=HTTPBasicAuth(username, password))
         except Exception as e:
@@ -257,8 +256,8 @@ def to_influx():
                 print("Can't retrieve the data from CouchDB, status code: " \
                       + str(resp.status_code))
             else:
-                print("Data retrieved from CouchDB, format: " + str(type(resp.json)))
-
+                print("Data retrieved from CouchDB")
+                
 
 
 if __name__ == '__main__':

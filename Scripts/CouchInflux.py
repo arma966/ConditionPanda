@@ -31,6 +31,19 @@ def test_influx_connection(bucket_name, org_name):
     
     return True
 
+def upload_history_table(new_file_name):
+    ht = pd.read_csv("history_table.csv")
+    
+    # Check if the file has already been loaded on couchDB
+    query = ht[(ht["file_name"] == new_file_name) & (ht["influx_db"] == False)]
+    if not query.empty:
+        row_index = query.index[0]
+        ht.loc[row_index,"influx_db"] = True
+        ht.to_csv("history_table.csv", index = False)
+    else:
+        print("Error")
+        print(new_file_name + " already uploaded to influxDB")
+        
 def get_file_to_load():
     file_to_load = []
     ht = pd.read_csv("history_table.csv")
@@ -125,6 +138,6 @@ for file in file_to_load:
         print("Exceptio: " + str(e))
     else:
         print(str(file) + " loaded successfully")
-    # Update history table
+        upload_history_table(file)
     
 
