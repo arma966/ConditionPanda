@@ -1,4 +1,4 @@
-# Line protocol 
+# Line protocol
 #
 # Syntax
 # <measurement>[,<tag_key>=<tag_value>[,<tag_key>=<tag_value>]] <field_key>=<field_value>[,<field_key>=<field_value>] [<timestamp>]
@@ -6,7 +6,7 @@
 # Example
 # myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813561098000000
 
-import json 
+import json
 from re import findall
 from datetime import datetime
 from influxdb_client import InfluxDBClient
@@ -39,21 +39,21 @@ def read_txt(file_path):
         f.close()
         return content
 
-def fileToInflux(FilePath, client, write_api, config):  
+def fileToInflux(FilePath, client, write_api, config):
     bucket = config["INFLUXDB"]["KPIbucket"]
     org = config["INFLUXDB"]["org"]
-    
+
     print("Loading to influx: " + FilePath)
-    
+
     content = open_json(FilePath)
     # SentLines = {}
     sensorList = list(content["S"].keys())
     time_KPI_list = list(content["S"][sensorList[0]]["KPI"]["Time"].keys())
     FreqKPIList = list(content["S"][sensorList[0]]["KPI"]["Frequency"].keys())
-    
+
     AAA = 0 # Integrate measurement with config file
-    measurement = "meas" 
-    
+    measurement = "meas"
+
     # If the KPI list are empty no data were acquired
     if time_KPI_list == [] and FreqKPIList == []:
         print("No data were acquired")
@@ -61,9 +61,9 @@ def fileToInflux(FilePath, client, write_api, config):
     # Get timestamp - format ISO 8601
     date = datetime.strptime(content["AST"], '%Y-%m-%dT%H:%M:%S.%f')
     timestamp = int(datetime.timestamp(date) * 1e9)
-    
+
     # Iterate on Time - KPI
-    for i in range(len(time_KPI_list)): 
+    for i in range(len(time_KPI_list)):
         # Build the tag string
         shot = list(findall("\d+",FilePath.split("\\")[-1]))[0]
         tag_string = "Sample_rate=" + str(content["SF"]) +"," \
@@ -71,17 +71,17 @@ def fileToInflux(FilePath, client, write_api, config):
                       + "Sensor="+ sensorList[0].replace(" ","_") +"," \
                       + "Machine="+ content["S"][sensorList[0]]["MAC"] +"," \
                       + "KPI_Type="+ 'Time'
-                    
+
         fields = time_KPI_list[i]
         data = content["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["data"]
         dt = content["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["Dt"] # [ms]
-        
+
         lines = [measurement
                   + ","+tag_string
                   + " "
                   + fields + "=" + str(data[d]) + " "
                   + str(timestamp+int(d*dt*1e6)) for d in range(len(data))]
-        
+
         # Send to influx
         result = write_api.write(bucket, org, lines)
         print("Writing: " + fields)
@@ -89,11 +89,11 @@ def fileToInflux(FilePath, client, write_api, config):
             print("Something went wrong")
             print("write_api result: " + str(result))
         # SentLines[time_KPI_list[i]] = lines
-        
+
     write_log(config["INFLUXDB"]["log_dir"],shot + "KPI")
-    
+
     # Iterate on Frequency - KPI
-    for i in range(len(FreqKPIList)): 
+    for i in range(len(FreqKPIList)):
         # Build the tag string
         shot = list(findall("\d+",FilePath.split("\\")[-1]))[0]
         tag_string = "Sample_rate=" + str(content["SF"]) +","+\
@@ -101,20 +101,20 @@ def fileToInflux(FilePath, client, write_api, config):
                     "Sensor="+ sensorList[0].replace(" ","_") +","+\
                     "Machine="+ content["S"][sensorList[0]]["MAC"] +","+\
                     "KPI_Type="+ 'Time'
-                    
+
         fields = time_KPI_list[i]
         data = content["S"][sensorList[0]]["KPI"]["Frequency"][FreqKPIList[i]]["data"]
         dt = content["S"][sensorList[0]]["KPI"]["Time"][FreqKPIList[i]]["Dt"] # [ms]
-        
+
         lines = [measurement
                   + ","+tag_string
                   + " "
                   + fields + "=" + str(data[d]) + " "
                   + str(timestamp+int(d*dt*1e6)) for d in range(len(data))]
-        
+
         # Send to influx
         # SentLines[time_KPI_list[i]] = lines
-        
+
 
 def write_log(log_path, file_name):
     try:
@@ -141,7 +141,7 @@ def connection_avaliable(url):
 
     influx_ip = split('//|:',url)[2]
     port = split('//|:',url)[3]
-        
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     result = sock.connect_ex((influx_ip,int(port)))
     if result == 0:
@@ -159,47 +159,47 @@ def to_influx1(date_string):
     ConfigFile = "config.ini"
     config = configparser.ConfigParser()
     config.read(ConfigFile)
-    
+
     url=config["INFLUXDB"]["influxurl"]
-    if not connection_avaliable(url): return 
-    
-    client = InfluxDBClient(url=url, 
+    if not connection_avaliable(url): return
+
+    client = InfluxDBClient(url=url,
                             token=config["INFLUXDB"]["token"])
-    
+
     if not bucket_exists(client, config):
         print("The bucket doesn't exist")
         return
     write_api = client.write_api(write_options=ASYNCHRONOUS)
-    
+
     log_path = config["INFLUXDB"]["log_dir"]
     couch_dir = config["COUCHDB"]["couch_dir"]
-    
+
     date = datetime.strptime(date_string, "%Y-%m-%d")
-    
+
     # Build the file path from the given date
     couch_file_dir = join(couch_dir,str(date.year),str(date.month),str(date.day))
     if not(exists(couch_file_dir)):
         print("No data avaliable in date - Folder doesn't exist': " + str(date.date()))
-        return 
+        return
     else:
         if listdir(couch_file_dir) == []:
             print("No data avaliable in date: " + str(date.date()))
-            return 
-        
+            return
+
     couch_file_list = [f for f in listdir(couch_file_dir) \
                        if isfile(join(couch_file_dir, f)) \
                        and not(f.find('.json') == -1) \
                        and not(f.find('KPI') == -1)]
-    
-    # For every measure in a day, check if it must be loaded, if yes load to 
+
+    # For every measure in a day, check if it must be loaded, if yes load to
     # influx
-    
+
     for f in couch_file_list:
         file_name  = f.split('.')[0]
-        
+
         log_content = read_txt(log_path)
-        if log_content == None: return 
-        
+        if log_content == None: return
+
         if not(file_name + "\n" in log_content):
             file_path = join(couch_file_dir,f)
             fileToInflux(file_path, client, write_api, config)
@@ -209,7 +209,7 @@ def to_influx1(date_string):
 def get_file_to_load():
     file_to_load = []
     ht = pd.read_csv("history_table.csv")
-    
+
     # # Check if the file has already been loaded on couchDB
     query = ht[(ht["influx_db"] == False) & (ht["file_name"].str.contains("KPI"))]
     file_to_load = query["file_name"].to_list()
@@ -223,42 +223,43 @@ def to_influx():
     ConfigFile = "config.ini"
     config = configparser.ConfigParser()
     config.read(ConfigFile)
-    
+
     url=config["INFLUXDB"]["influxurl"]
-    
-    if not connection_avaliable(url): return 
-    
-    client = InfluxDBClient(url=url, 
+
+    if not connection_avaliable(url): return
+
+    client = InfluxDBClient(url=url,
                             token=config["INFLUXDB"]["token"])
-    
+
     if not bucket_exists(client, config):
         print("The bucket doesn't exist")
         return
     write_api = client.write_api(write_options=ASYNCHRONOUS)
-    
+
     username = "LattepandaCouch"
     password = "peanut96"
-    couch_url = "http://localhost:5984/students/"
-    
+    couch_url = "http://192.168.1.5:5984/students/"
+
     file_to_load = get_file_to_load()
-    
+
     for file in file_to_load:
         print("Attempting to load " + file)
         try:
             print("Couch url: " + couch_url + file)
             resp = requests.get(couch_url + file,
                                 auth=HTTPBasicAuth(username, password))
-        except:
+        except Exception as e:
             print("Can't retrieve the data from CouchDB, an exception occurred")
-        else: 
+            print("Exception: " + str(e))
+        else:
             if resp.status_code != 200:
                 print(resp.text)
                 print("Can't retrieve the data from CouchDB, status code: " \
                       + str(resp.status_code))
-            else: 
+            else:
                 print("Data retrieved from CouchDB, format: " + str(type(resp.json)))
-            
-    
-    
+
+
+
 if __name__ == '__main__':
     to_influx("2021-03-17")
