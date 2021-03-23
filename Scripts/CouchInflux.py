@@ -6,6 +6,8 @@ import pandas as pd
 from influxdb_client import InfluxDBClient, WriteOptions,BucketsApi,OrganizationsApi
 import sys
 from requests.auth import HTTPBasicAuth
+from datetime import datetime, timedelta
+
 
 def test_influx_connection(client,bucket_name, org_name):
     buckets_client= BucketsApi(client)
@@ -68,7 +70,7 @@ def fileToInflux(content):
         return None
     
     # Get timestamp - format ISO 8601    
-    date = pd.to_datetime(content["AST"], format='%Y-%m-%dT%H:%M:%S.%f', errors='ignore')
+    date = datetime.strptime(content["AST"],'%Y-%m-%dT%H:%M:%S.%f')
     
     # Iterate on Time - KPI
     data_points = []
@@ -87,12 +89,12 @@ def fileToInflux(content):
         data = content["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["data"]
         
         for d in range(len(data)):
-            time_delta = pd.to_timedelta(float(dt)*d,unit = 'ms')
-            actual_time = date + time_delta
+            time_delta = timedelta(float(dt)*d,unit = 'ms')
+            UTC_time = date + time_delta - timedelta(hour = 1)
             data_points.append(measurement+"," \
                                + tag_string + " " \
                                + time_KPI_list[i] + "=" +str(data[d]) + " " \
-                               + str(int(actual_time.timestamp()*1e9)))
+                               + str(int(UTC_time.timestamp()*1e9)))
 
     return data_points
         
