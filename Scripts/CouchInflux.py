@@ -60,7 +60,7 @@ def fileToInflux(content):
     time_KPI_list = list(content["S"][sensorList[0]]["KPI"]["Time"].keys())
     FreqKPIList = list(content["S"][sensorList[0]]["KPI"]["Frequency"].keys())
 
-    measurement = "hello5"
+    measurement = "condition"
 
     # If the KPI list are empty no data were acquired
     if time_KPI_list == [] and FreqKPIList == []:
@@ -77,8 +77,8 @@ def fileToInflux(content):
         
         # Build the tag string
         shot = content["_id"].split('-')[1]
-        tag_string = "Sample_rate=" + str(content["SF"]) +',' \
-                     + "Shot=" + shot+',' \
+        tag_string = "Sample_rate=" + '"'+str(content["SF"]) +'",' \
+                     + "Shot=" + '"'+shot+'",' \
                      + "Sensor=" + sensorList[0].replace(" ","_")+',' \
                      + "Machine=" + content["S"][sensorList[0]]["MAC"]+',' \
                      + "KPI_Type=" + 'Time'
@@ -98,13 +98,13 @@ def fileToInflux(content):
         
 def to_influx():
     
-    url = "http://localhost:8086"
+    url = "http://192.168.1.5:8086"
     client = InfluxDBClient(url=url,
                                 token="mytoken")
-    bucket_name = "KPI_db"
+    bucket_name = "mybucket"
     org_name = "myorg"
     
-    write_client = client.write_api(write_options=WriteOptions(batch_size=1000,
+    write_client = client.write_api(write_options=WriteOptions(batch_size=100,
                                                                  flush_interval=10_000,
                                                                  jitter_interval=2_000,
                                                                  retry_interval=5_000,
@@ -137,11 +137,11 @@ def to_influx():
                 try:
                     write_client.write(bucket_name, org_name, data_points)
                 except Exception as e:
-                    print("Exceptio: " + str(e))
+                    print("Excption: " + str(e))
                 else:
                     print(str(file) + " loaded successfully")
                     upload_history_table(file)
-                    return data_points
+                    
 
 
 

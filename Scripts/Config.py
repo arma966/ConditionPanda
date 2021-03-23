@@ -55,7 +55,7 @@ def writeConfig():
 def Load():
     dw.Measure()
     je.to_couchDB()
-    # ci.to_influx()
+    ci.to_influx()
 
 def Measure():
     msname = dwa.getMeasName()
@@ -67,7 +67,7 @@ def Measure():
         print("Auto loading")
         dw.Measure()
         je.to_couchDB()
-        # ci.to_influx()
+        ci.to_influx()
 
 def LoadSetup():
     dw.LoadSetup(join(mypath,config["DEWESOFT"]["setup_file"]))
