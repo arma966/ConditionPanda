@@ -140,6 +140,6 @@ def to_influx():
                     print(str(file) + " loaded successfully")
                     upload_history_table(file)
                     return data_points
-    
-data_points = to_influx()
+if __name__ == '__main__':
+    data_points = to_influx()
 
