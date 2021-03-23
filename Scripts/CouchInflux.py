@@ -71,7 +71,7 @@ def fileToInflux(content):
     
     # Get timestamp - format ISO 8601    
     date = datetime.strptime(content["AST"],'%Y-%m-%dT%H:%M:%S.%f')
-    
+    4
     # Iterate on Time - KPI
     data_points = []
     for i in range(len(time_KPI_list)):
@@ -89,8 +89,8 @@ def fileToInflux(content):
         data = content["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["data"]
         
         for d in range(len(data)):
-            time_delta = timedelta(float(dt)*d,unit = 'ms')
-            UTC_time = date + time_delta - timedelta(hour = 1)
+            time_delta = timedelta(milliseconds = float(dt)*d)
+            UTC_time = date + time_delta 
             data_points.append(measurement+"," \
                                + tag_string + " " \
                                + time_KPI_list[i] + "=" +str(data[d]) + " " \
