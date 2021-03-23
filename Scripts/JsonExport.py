@@ -246,7 +246,64 @@ def upload_history_table(new_file_name, loaded):
             ht.to_csv("history_table.csv", index = False)
     else:
         print(new_file_name + " already uploaded to couchDB")
+
+def load_kpi(KPI_dict, config):
+    username = config["COUCHDB"]["username"]
+    password = config["COUCHDB"]["password"]
+    couch_url = config["COUCHDB"]["couch_url"]
+    loaded_KPI = False
+    shot = get_shot(KPI_dict["AST"])
+    
+    KPI_file_name = "KPI-"+shot
+    try:
+        resp = requests.put(couch_url+"/students/"+KPI_file_name,
+                            auth=HTTPBasicAuth(username, password),
+                            json = KPI_dict)
         
+    except:
+        print("Can't load the file on CouchDB, an exception occurred")
+        upload_history_table(KPI_file_name, loaded_KPI)
+    else: 
+        if resp.status_code != 201:
+            print(resp.text)
+            print("Error, can't load the file on CouchDB: " \
+                  + str(resp.status_code))
+        else:
+            loaded_KPI = True
+            print("CouchDB loading successful: " \
+                  + str(resp.status_code))
+        
+        upload_history_table(KPI_file_name, loaded_KPI)
+        
+def load_raw(RAW_dict, config):
+    username = config["COUCHDB"]["username"]
+    password = config["COUCHDB"]["password"]
+    couch_url = config["COUCHDB"]["couch_url"]
+    loaded_RAW = False
+    shot = get_shot(RAW_dict["AST"])
+    
+    KPI_file_name = "KPI-"+shot
+    try:
+        resp = requests.put(couch_url+"/students/"+KPI_file_name,
+                            auth=HTTPBasicAuth(username, password),
+                            json = RAW_dict)
+        
+    except:
+        print("Can't load the file on CouchDB, an exception occurred")
+        upload_history_table(KPI_file_name, loaded_RAW)
+    else: 
+        if resp.status_code != 201:
+            print(resp.text)
+            print("Error, can't load the file on CouchDB: " \
+                  + str(resp.status_code))
+        else:
+            loaded_RAW = True
+            print("CouchDB loading successful: " \
+                  + str(resp.status_code))
+        
+        upload_history_table(KPI_file_name, loaded_RAW)
+
+
 def to_couchDB():
     ConfigFile = "config.ini"
     config = configparser.ConfigParser()
@@ -254,13 +311,8 @@ def to_couchDB():
     
     data_dir = config["DEWESOFT"]["data_dir"]
     
-    couch_url = config["COUCHDB"]["couch_url"]
     dewe_folder_list = [f for f in listdir(data_dir) if isdir(join(data_dir, f))]
     
-    username = "LattepandaCouch"
-    password = "peanut96"
-    
-   
     if dewe_folder_list == []:
         print("There are no data acquired by the DAQ")
         return
@@ -286,49 +338,9 @@ def to_couchDB():
         
         connection_avaliable = True
         if KPI_dict is not(None) and RAW_dict is not(None) and connection_avaliable:
-            
-            try:
-                resp = requests.put(couch_url+"/students/"+KPI_file_name,
-                                    auth=HTTPBasicAuth(username, password),
-                                    json = KPI_dict)
-                
-            except:
-                print("Can't load the file on CouchDB, an exception occurred")
-                upload_history_table(KPI_file_name, loaded_KPI)
-                connection_avaliable = False
-            else: 
-                if resp.status_code != 201:
-                    print(resp.text)
-                    print("Error, can't load the file on CouchDB: " \
-                          + str(resp.status_code))
-                else:
-                    loaded_KPI = True
-                    print("CouchDB loading successful: " \
-                          + str(resp.status_code))
-                
-                    upload_history_table(KPI_file_name, loaded_KPI)
-            
+            load_kpi(KPI_dict, config)
             if connection_avaliable:
-                try:
-                    resp = requests.put(couch_url+"/students/"+RAW_file_name,
-                                        auth=HTTPBasicAuth(username, password),
-                                        json = RAW_dict)
-                    
-                except:
-                    print("Can't load the file on CouchDB, an exception occurred")
-                    upload_history_table(RAW_file_name, loaded_RAW)
-                    connection_avaliable = False
-                else: 
-                    if resp.status_code != 201:
-                        print(resp.text)
-                        print("Error, can't load the file on CouchDB: " \
-                              + str(resp.status_code))
-                    else:
-                        loaded_RAW= True
-                        print("CouchDB loading successful: " \
-                              + str(resp.status_code))
-                    
-                        upload_history_table(RAW_file_name, loaded_RAW)
+                load_raw(RAW_dict, config)
             else:
                 loaded_RAW = False
                 upload_history_table(RAW_file_name, loaded_RAW)
