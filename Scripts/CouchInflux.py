@@ -4,6 +4,7 @@ from influxdb_client import InfluxDBClient, WriteOptions,BucketsApi,Organization
 from requests.auth import HTTPBasicAuth
 from datetime import datetime, timedelta
 import configparser
+from influxdb_client.client.write_api import ASYNCHRONOUS
 
 def test_influx_connection(client,bucket_name, org_name):
     buckets_client= BucketsApi(client)
@@ -58,7 +59,7 @@ def generate_lines(data_file,config):
     time_KPI_list = list(data_file["S"][sensorList[0]]["KPI"]["Time"].keys())
     FreqKPIList = list(data_file["S"][sensorList[0]]["KPI"]["Frequency"].keys())
 
-    measurement = config["COUCHDB"]["measurement"]
+    measurement = config["INFLUXDB"]["measurement"]
 
     # If the KPI list are empty no data were acquired
     if time_KPI_list == [] and FreqKPIList == []:
@@ -85,7 +86,7 @@ def generate_lines(data_file,config):
         data = data_file["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["data"]
         
         for d in range(len(data)):
-            time_delta = timedelta(float(dt)*d,unit = 'ms')
+            time_delta = timedelta(milliseconds=float(dt)*d)
             actual_time = date + time_delta
             data_points.append(measurement+"," \
                                + tag_string + " " \
@@ -104,14 +105,14 @@ def to_influx():
     bucket_name = config["INFLUXDB"]["kpibucket"]
     org_name = config["INFLUXDB"]["org"]
     
-    write_client = client.write_api(write_options=WriteOptions(batch_size=1000,
-                                                                 flush_interval=10_000,
-                                                                 jitter_interval=2_000,
-                                                                 retry_interval=5_000,
-                                                                 max_retries=5,
-                                                                 max_retry_delay=30_000,
-                                                                 exponential_base=2))
-    
+    # write_client = client.write_api(write_options=WriteOptions(batch_size=1000,
+    #                                                              flush_interval=10_000,
+    #                                                              jitter_interval=2_000,
+    #                                                              retry_interval=5_000,
+    #                                                              max_retries=5,
+    #                                                              max_retry_delay=30_000,
+    #                                                              exponential_base=2))
+    write_client = client.write_api(write_options=ASYNCHRONOUS)
     if not test_influx_connection(client, bucket_name, org_name): return
     
     file_to_load = get_file_to_load()
