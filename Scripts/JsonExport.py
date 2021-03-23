@@ -328,7 +328,7 @@ def to_couchDB():
                         print("CouchDB loading successful: " \
                               + str(resp.status_code))
                     
-                        upload_history_table(RAW_file_name, loaded_RAW)
+                    upload_history_table(RAW_file_name, loaded_RAW)
             else:
                 loaded_RAW = False
                 upload_history_table(RAW_file_name, loaded_RAW)
