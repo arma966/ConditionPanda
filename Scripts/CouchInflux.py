@@ -59,7 +59,7 @@ def fileToInflux(content):
     time_KPI_list = list(content["S"][sensorList[0]]["KPI"]["Time"].keys())
     FreqKPIList = list(content["S"][sensorList[0]]["KPI"]["Frequency"].keys())
 
-    measurement = "batch_meas"
+    measurement = "hello"
 
     # If the KPI list are empty no data were acquired
     if time_KPI_list == [] and FreqKPIList == []:
@@ -102,7 +102,7 @@ def to_influx():
     bucket_name = "KPI_db"
     org_name = "myorg"
     
-    write_client = client.write_api(write_options=WriteOptions(batch_size=5000,
+    write_client = client.write_api(write_options=WriteOptions(batch_size=200,
                                                                  flush_interval=10_000,
                                                                  jitter_interval=2_000,
                                                                  retry_interval=5_000,
@@ -110,7 +110,7 @@ def to_influx():
                                                                  max_retry_delay=30_000,
                                                                  exponential_base=2))
     
-    if not test_influx_connection(client, bucket_name, org_name): sys.exit()
+    if not test_influx_connection(client, bucket_name, org_name): return
     
     file_to_load = get_file_to_load()
     username = "LattepandaCouch"
@@ -139,5 +139,7 @@ def to_influx():
                 else:
                     print(str(file) + " loaded successfully")
                     upload_history_table(file)
+                    return data_points
     
+data_points = to_influx()
 
