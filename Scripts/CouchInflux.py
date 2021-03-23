@@ -31,6 +31,7 @@ def test_influx_connection(client,bucket_name, org_name):
     
     return True
 
+
 def upload_history_table(new_file_name):
     ht = pd.read_csv("history_table.csv")
     
@@ -59,7 +60,7 @@ def fileToInflux(content):
     time_KPI_list = list(content["S"][sensorList[0]]["KPI"]["Time"].keys())
     FreqKPIList = list(content["S"][sensorList[0]]["KPI"]["Frequency"].keys())
 
-    measurement = "hello"
+    measurement = "hello5"
 
     # If the KPI list are empty no data were acquired
     if time_KPI_list == [] and FreqKPIList == []:
@@ -76,11 +77,11 @@ def fileToInflux(content):
         
         # Build the tag string
         shot = content["_id"].split('-')[1]
-        tag_dict = {"Sample_rate": str(content["SF"]),
-                    "Shot": shot,
-                    "Sensor": sensorList[0].replace(" ","_"),
-                    "Machine": content["S"][sensorList[0]]["MAC"],
-                    "KPI_Type": 'Time'}
+        tag_string = "Sample_rate=" + str(content["SF"]) +',' \
+                     + "Shot=" + shot+',' \
+                     + "Sensor=" + sensorList[0].replace(" ","_")+',' \
+                     + "Machine=" + content["S"][sensorList[0]]["MAC"]+',' \
+                     + "KPI_Type=" + 'Time'
 
         
         data = content["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["data"]
@@ -88,21 +89,22 @@ def fileToInflux(content):
         for d in range(len(data)):
             time_delta = pd.to_timedelta(float(dt)*d,unit = 'ms')
             actual_time = date + time_delta
-            fields = {time_KPI_list[i]: data[d]}
-            data_points.append({"measurement": measurement,
-                                "tags": tag_dict,
-                                "fields": fields,
-                                "time": actual_time.isoformat()})
+            data_points.append(measurement+"," \
+                               + tag_string + " " \
+                               + time_KPI_list[i] + "=" +str(data[d]) + " " \
+                               + str(int(actual_time.timestamp()*1e9)))
+
     return data_points
         
 def to_influx():
+    
     url = "http://localhost:8086"
     client = InfluxDBClient(url=url,
                                 token="mytoken")
     bucket_name = "KPI_db"
     org_name = "myorg"
     
-    write_client = client.write_api(write_options=WriteOptions(batch_size=200,
+    write_client = client.write_api(write_options=WriteOptions(batch_size=1000,
                                                                  flush_interval=10_000,
                                                                  jitter_interval=2_000,
                                                                  retry_interval=5_000,
@@ -140,6 +142,9 @@ def to_influx():
                     print(str(file) + " loaded successfully")
                     upload_history_table(file)
                     return data_points
-    
-data_points = to_influx()
+
+
+
+if __name__ == "__main__":
+    to_influx()
 
