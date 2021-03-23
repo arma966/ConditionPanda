@@ -1,13 +1,9 @@
 import requests
-from re import findall 
-from json import load 
-from influxdb_client.client.util.date_utils_pandas import PandasDateTimeHelper
 import pandas as pd
 from influxdb_client import InfluxDBClient, WriteOptions,BucketsApi,OrganizationsApi
-import sys
 from requests.auth import HTTPBasicAuth
 from datetime import datetime, timedelta
-
+import configparser
 
 def test_influx_connection(client,bucket_name, org_name):
     buckets_client= BucketsApi(client)
@@ -56,13 +52,13 @@ def get_file_to_load():
     file_to_load = query["file_name"].to_list()
     return file_to_load
         
-def fileToInflux(content):
+def generate_lines(data_file,config):
 
-    sensorList = list(content["S"].keys())
-    time_KPI_list = list(content["S"][sensorList[0]]["KPI"]["Time"].keys())
-    FreqKPIList = list(content["S"][sensorList[0]]["KPI"]["Frequency"].keys())
+    sensorList = list(data_file["S"].keys())
+    time_KPI_list = list(data_file["S"][sensorList[0]]["KPI"]["Time"].keys())
+    FreqKPIList = list(data_file["S"][sensorList[0]]["KPI"]["Frequency"].keys())
 
-    measurement = "hello5"
+    measurement = config["COUCHDB"]["measurement"]
 
     # If the KPI list are empty no data were acquired
     if time_KPI_list == [] and FreqKPIList == []:
@@ -70,41 +66,43 @@ def fileToInflux(content):
         return None
     
     # Get timestamp - format ISO 8601    
-    date = datetime.strptime(content["AST"],'%Y-%m-%dT%H:%M:%S.%f')
+    date = datetime.strptime(data_file["AST"],'%Y-%m-%dT%H:%M:%S.%f')
     
     # Iterate on Time - KPI
     data_points = []
     for i in range(len(time_KPI_list)):
-        dt = content["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["Dt"] # [ms]
+        dt = data_file["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["Dt"] # [ms]
         
         # Build the tag string
-        shot = content["_id"].split('-')[1]
-        tag_string = "Sample_rate=" + str(content["SF"]) +',' \
+        shot = data_file["_id"].split('-')[1]
+        tag_string = "Sample_rate=" + str(data_file["SF"]) +',' \
                      + "Shot=" + shot+',' \
                      + "Sensor=" + sensorList[0].replace(" ","_")+',' \
-                     + "Machine=" + content["S"][sensorList[0]]["MAC"]+',' \
+                     + "Machine=" + data_file["S"][sensorList[0]]["MAC"]+',' \
                      + "KPI_Type=" + 'Time'
 
         
-        data = content["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["data"]
+        data = data_file["S"][sensorList[0]]["KPI"]["Time"][time_KPI_list[i]]["data"]
         
         for d in range(len(data)):
             time_delta = timedelta(float(dt)*d,unit = 'ms')
-            UTC_time = date + time_delta - timedelta(hour = 1)
+            actual_time = date + time_delta
             data_points.append(measurement+"," \
                                + tag_string + " " \
                                + time_KPI_list[i] + "=" +str(data[d]) + " " \
-                               + str(int(UTC_time.timestamp()*1e9)))
+                               + str(int(actual_time.timestamp()*1e9)))
 
     return data_points
         
 def to_influx():
+    ConfigFile = "config.ini"
+    config = configparser.ConfigParser()
+    config.read(ConfigFile)
     
-    url = "http://localhost:8086"
-    client = InfluxDBClient(url=url,
-                                token="mytoken")
-    bucket_name = "mybucket"
-    org_name = "myorg"
+    client = InfluxDBClient(url=config["INFLUXDB"]["influxurl"],
+                                token=config["INFLUXDB"]["token"])
+    bucket_name = config["INFLUXDB"]["kpibucket"]
+    org_name = config["INFLUXDB"]["org"]
     
     write_client = client.write_api(write_options=WriteOptions(batch_size=1000,
                                                                  flush_interval=10_000,
@@ -117,14 +115,14 @@ def to_influx():
     if not test_influx_connection(client, bucket_name, org_name): return
     
     file_to_load = get_file_to_load()
-    username = "LattepandaCouch"
-    password = "peanut96"
-    couch_url = "http://192.168.1.5:5984/students/"
+    username = config["COUCHDB"]["username"]
+    password = config["COUCHDB"]["password"]
+    couch_url = config["COUCHDB"]["couch_url"] + "/students/"
     
     for file in file_to_load:
         try:
-                resp = requests.get(couch_url + file,
-                                    auth=HTTPBasicAuth(username, password))
+            resp = requests.get(couch_url + file,
+                                auth=HTTPBasicAuth(username, password))
         except Exception as e:
             print("Can't retrieve the data from CouchDB, an exception occurred")
             print("Exception: " + str(e))
@@ -135,7 +133,7 @@ def to_influx():
                       + str(resp.status_code))
             else:
                 print("Data retrieved from CouchDB")
-                data_points = fileToInflux(resp.json())
+                data_points = generate_lines(resp.json(),config)
                 try:
                     write_client.write(bucket_name, org_name, data_points)
                 except Exception as e:
