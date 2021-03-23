@@ -26,6 +26,8 @@ def developement_config():
     
     config["COUCHDB"]["couch_dir"] = normpath(couch_dir)
     config["COUCHDB"]["couch_url"] = "http://localhost:5984"
+    config["COUCHDB"]["username"] = "LattepandaCouch"
+    config["COUCHDB"]["password"] = "peanut96"
 
     with open(ConfigFile,'w') as f:
         config.write(f)
@@ -57,7 +59,8 @@ def production_config():
     
     config["COUCHDB"]["couch_dir"] = normpath(couch_dir)
     config["COUCHDB"]["couch_url"] = "http://192.168.1.5:5984"
-
+    config["COUCHDB"]["username"] = "LattepandaCouch"
+    config["COUCHDB"]["password"] = "peanut96"
     with open(ConfigFile,'w') as f:
         config.write(f)
     f.close()
