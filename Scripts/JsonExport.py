@@ -54,7 +54,7 @@ def get_data(file_path):
                 else:
                     i = i+1
     except FileNotFoundError:
-        print("Can't retrieve the data, the file doesn't exist.")
+        print("Can't retrieve the4 data, the file doesn't exist.")
         return None
     else:
         f.close()
@@ -221,7 +221,7 @@ def get_target_path(couch_dir, date):
     return target_path
 
 
-def upload_history_table(new_file_name, loaded):
+def update_history_table(new_file_name, loaded):
     ht = pd.read_csv("history_table.csv")
     
     new_file_entry = {"file_name": new_file_name, 
@@ -251,7 +251,6 @@ def load_kpi(KPI_dict, config):
     username = config["COUCHDB"]["username"]
     password = config["COUCHDB"]["password"]
     couch_url = config["COUCHDB"]["couch_url"]
-    loaded_KPI = False
     shot = get_shot(KPI_dict["AST"])
     
     KPI_file_name = "KPI-"+shot
@@ -262,46 +261,45 @@ def load_kpi(KPI_dict, config):
         
     except:
         print("Can't load the file on CouchDB, an exception occurred")
-        upload_history_table(KPI_file_name, loaded_KPI)
+        return False
     else: 
         if resp.status_code != 201:
             print(resp.text)
             print("Error, can't load the file on CouchDB: " \
                   + str(resp.status_code))
+            return False
         else:
-            loaded_KPI = True
             print("CouchDB loading successful: " \
                   + str(resp.status_code))
         
-        upload_history_table(KPI_file_name, loaded_KPI)
+            return True
         
 def load_raw(RAW_dict, config):
     username = config["COUCHDB"]["username"]
     password = config["COUCHDB"]["password"]
     couch_url = config["COUCHDB"]["couch_url"]
-    loaded_RAW = False
     shot = get_shot(RAW_dict["AST"])
     
-    KPI_file_name = "KPI-"+shot
+    RAW_file_name = "RAW-"+shot
     try:
-        resp = requests.put(couch_url+"/students/"+KPI_file_name,
+        resp = requests.put(couch_url+"/students/"+RAW_file_name,
                             auth=HTTPBasicAuth(username, password),
                             json = RAW_dict)
         
     except:
         print("Can't load the file on CouchDB, an exception occurred")
-        upload_history_table(KPI_file_name, loaded_RAW)
+        return False
     else: 
         if resp.status_code != 201:
             print(resp.text)
             print("Error, can't load the file on CouchDB: " \
                   + str(resp.status_code))
+            return False
         else:
-            loaded_RAW = True
             print("CouchDB loading successful: " \
                   + str(resp.status_code))
         
-        upload_history_table(KPI_file_name, loaded_RAW)
+        return True
 
 
 def to_couchDB():
@@ -336,20 +334,17 @@ def to_couchDB():
         KPI_file_name = "KPI-"+shot
         RAW_file_name = "RAW-"+shot
         
-        connection_avaliable = True
-        if KPI_dict is not(None) and RAW_dict is not(None) and connection_avaliable:
-            load_kpi(KPI_dict, config)
-            if connection_avaliable:
-                load_raw(RAW_dict, config)
-            else:
-                loaded_RAW = False
-                upload_history_table(RAW_file_name, loaded_RAW)
-        else:
-            upload_history_table(RAW_file_name, loaded_RAW)
-            upload_history_table(KPI_file_name, loaded_KPI)      
+        if KPI_dict is not(None) and RAW_dict is not(None):
+            result = load_kpi(KPI_dict, config)
+            if result: loaded_KPI == True
+            result = load_raw(RAW_dict, config)
+            if result: loaded_RAW == True
+            
+        update_history_table(RAW_file_name, loaded_RAW)
+        update_history_table(KPI_file_name, loaded_KPI)      
             
         if loaded_KPI and loaded_RAW:
-            # Remove dewesoft files
+4            # Remove dewesoft files
             rmtree(dewe_data_path)
             remove(dewe_data_path + '.dxd')
 
