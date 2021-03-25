@@ -4,17 +4,21 @@ Utilities to create a dictionary based data structure from the Dewesoft-exported
 files. The data structure is then coverted to the json format. 
 
 Author: Armenante Davide
-Last update: 15/3/2021
+Last update: 20/3/2021
 ____________________________________________________________________________
 """
 
 from numpy import loadtxt
-from json import dump, load
 from os import listdir, mkdir, remove
 from os.path import join, isfile, isdir, exists
 from datetime import datetime, timedelta
 from pandas import read_csv
 from shutil import rmtree
+import configparser
+from json import dump 
+import requests
+from requests.auth import HTTPBasicAuth
+import pandas as pd
 
 def get_metadata(file_path):
     # Read the firsts few lines of the *FileName* and retrieve the metadata 
@@ -50,7 +54,7 @@ def get_data(file_path):
                 else:
                     i = i+1
     except FileNotFoundError:
-        print("Can't retrieve the data, the file doesn't exist.")
+        print("Can't retrieve the4 data, the file doesn't exist.")
         return None
     else:
         f.close()
@@ -113,20 +117,20 @@ def build_KPI_dictionary(file_dir):
     metaDataFile = get_metadata(raw_file_path)
     
     # Build main dictionary
+    # Build main dictionary
     retrieved_date = datetime.strptime(metaDataFile["Start time"], '%m/%d/%Y %H:%M:%S.%f')
     delta = timedelta(milliseconds=int(metaDataFile["Post time"]))
-    endTime = retrieved_date+delta
-    endTimeString = str(endTime.month) + '/' + str(endTime.day) + '/' + \
-                    str(endTime.year) + ' ' + str(endTime.hour) + ':' + \
-                    str(endTime.minute) + ':' + str(endTime.second) + '.' +\
-                    str(endTime.microsecond)[0:-3]
+    end_time = retrieved_date + delta
+    
+    json_id = "KPI-" + get_shot(retrieved_date.isoformat())
     KPI_dict = {
+                "_id": json_id,
                 "DV": sensor_spec["DV"].to_string(index = False).replace(' ',''),
                 "DAQ": sensor_spec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
                 "S": sensor_dictionary,
-                "AST": metaDataFile["Start time"],
-                "AET": endTimeString,
+                "AST": retrieved_date.isoformat(),
+                "AET": end_time.isoformat(),
                 "SF": metaDataFile["Sample rate"],
                 "PT": metaDataFile["Post time"],
         }
@@ -167,17 +171,16 @@ def build_RAW_dictionary(file_dir):
     retrieved_date = datetime.strptime(metaDataFile["Start time"], '%m/%d/%Y %H:%M:%S.%f')
     delta = timedelta(milliseconds=int(metaDataFile["Post time"]))
     end_time = retrieved_date + delta
-    endTimeString = str(end_time.month) + '/' + str(end_time.day) + '/' + \
-                    str(end_time.year) + ' ' + str(end_time.hour) + ':' + \
-                    str(end_time.minute) + ':' + str(end_time.second) + '.' +\
-                    str(end_time.microsecond)[0:-3]
+    
+    json_id = "RAW-" + get_shot(retrieved_date.isoformat())
     KPI_dict = {
+                "_id": json_id,
                 "DV": sensor_spec["DV"].to_string(index = False).replace(' ',''),
                 "DAQ": sensor_spec["DAQ"].to_string(index = False).replace(' ',''),
                 "MU": "m/s2",
                 "S": sensor_dictionary,
-                "AST": metaDataFile["Start time"],
-                "AET": endTimeString,
+                "AST": retrieved_date.isoformat(),
+                "AET": end_time.isoformat(),
                 "SF": int(metaDataFile["Sample rate"]),
                 "PT": int(metaDataFile["Post time"]),
         }
@@ -185,34 +188,14 @@ def build_RAW_dictionary(file_dir):
 
 def get_shot(date):
     try:
-        retrieved_date = datetime.strptime(date, '%m/%d/%Y %H:%M:%S.%f')
+        datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f')
     except ValueError:
         print("[get_shot()] Wrong date format on the exported Dewesoft file.")
-        print("Make sure the system date format is m/d/yyyy h:n:s:fff")
+        print("Make sure the system date format follows the ISO standard 8601")
         return None
     else:
-        y = str(retrieved_date.year)   
-        if len(str(retrieved_date.month)) == 1:
-           m = '0' + str(retrieved_date.month)
-        else:
-            m = str(retrieved_date.month)
-        if len(str(retrieved_date.day)) == 1:
-           d = '0' + str(retrieved_date.day)
-        else:
-            d = str(retrieved_date.day)
-        if len(str(retrieved_date.hour)) == 1:
-           h = '0' + str(retrieved_date.hour)
-        else:
-            h = str(retrieved_date.hour)
-        if len(str(retrieved_date.minute)) == 1:
-           mi = '0' + str(retrieved_date.minute)
-        else:
-            mi = str(retrieved_date.minute)
-        if len(str(retrieved_date.second)) == 1:
-           s = '0' + str(retrieved_date.second)
-        else:
-            s = str(retrieved_date.second)
-        shot = y+m+d+h+mi+s
+        shot = date.replace("-","").replace("T","").replace(":","")
+        shot = shot.replace(".","")[0:-3]
         return shot
 
 def write_json(data, name):
@@ -222,7 +205,7 @@ def write_json(data, name):
     f.close()
 
 def get_target_path(couch_dir, date):
-    dt = datetime.strptime(date, '%m/%d/%Y %H:%M:%S.%f')
+    dt = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f')
     target_path = join(couch_dir,str(dt.year),str(dt.month),str(dt.day))
     if not(exists(target_path)):
         if not(exists(join(couch_dir,str(dt.year),str(dt.month)))):
@@ -237,41 +220,134 @@ def get_target_path(couch_dir, date):
             mkdir(join(couch_dir,str(dt.year),str(dt.month),str(dt.day)))
     return target_path
 
-def to_couchDB():
-    with open("Config.json") as f:
-        config = load(f)
-    f.close()
+
+def update_history_table(new_file_name, loaded):
+    ht = pd.read_csv("history_table.csv")
     
-    data_dir = config["Dewesoft"]["DataDir"]
-    couch_dir = config["CouchDB"]["couchDir"]
+    new_file_entry = {"file_name": new_file_name, 
+                "couch_db": False, 
+                "influx_db": False
+        }
+    
+    
+    # Check if the file exist in the table
+    query = ht[(ht["file_name"] == new_file_name)]
+    if query.empty:
+        ht = ht.append(new_file_entry, ignore_index=True)
+        ht.to_csv("history_table.csv", index = False)
+    
+    
+    # Check if the file has already been loaded on couchDB
+    query = ht[(ht["file_name"] == new_file_name) & (ht["couch_db"] == False)]
+    if not query.empty:
+        if loaded:
+            row_index = query.index[0]
+            ht.loc[row_index,"couch_db"] = True
+            ht.to_csv("history_table.csv", index = False)
+    else:
+        print(new_file_name + " already uploaded to couchDB")
+
+def load_kpi(KPI_dict, config):
+    username = config["COUCHDB"]["username"]
+    password = config["COUCHDB"]["password"]
+    couch_url = config["COUCHDB"]["couch_url"]
+    shot = get_shot(KPI_dict["AST"])
+    
+    KPI_file_name = "KPI-"+shot
+    try:
+        resp = requests.put(couch_url+"/students/"+KPI_file_name,
+                            auth=HTTPBasicAuth(username, password),
+                            json = KPI_dict)
+        
+    except:
+        print("Can't load the file on CouchDB, an exception occurred")
+        return False
+    else: 
+        if resp.status_code != 201:
+            print(resp.text)
+            print("Error, can't load the file on CouchDB: " \
+                  + str(resp.status_code))
+            return False
+        else:
+            print("CouchDB loading successful: " \
+                  + str(resp.status_code))
+        
+            return True
+        
+def load_raw(RAW_dict, config):
+    username = config["COUCHDB"]["username"]
+    password = config["COUCHDB"]["password"]
+    couch_url = config["COUCHDB"]["couch_url"]
+    shot = get_shot(RAW_dict["AST"])
+    
+    RAW_file_name = "RAW-"+shot
+    try:
+        resp = requests.put(couch_url+"/students/"+RAW_file_name,
+                            auth=HTTPBasicAuth(username, password),
+                            json = RAW_dict)
+        
+    except:
+        print("Can't load the file on CouchDB, an exception occurred")
+        return False
+    else: 
+        if resp.status_code != 201:
+            print(resp.text)
+            print("Error, can't load the file on CouchDB: " \
+                  + str(resp.status_code))
+            return False
+        else:
+            print("CouchDB loading successful: " \
+                  + str(resp.status_code))
+        
+        return True
+
+
+def to_couchDB():
+    ConfigFile = "config.ini"
+    config = configparser.ConfigParser()
+    config.read(ConfigFile)
+    
+    data_dir = config["DEWESOFT"]["data_dir"]
+    
     dewe_folder_list = [f for f in listdir(data_dir) if isdir(join(data_dir, f))]
     
     if dewe_folder_list == []:
         print("There are no data acquired by the DAQ")
         return
-    
-    # For every folder created by exporting the acquired files, navigate through
-    # it and upload the data to couchDB
+
+    '''
+    | For every folder created by exporting the acquired files, navigate through
+    | it and upload the data to couchDB
+    '''
     for f in dewe_folder_list:
         dewe_data_path = join(data_dir,f)
         
         KPI_dict = build_KPI_dictionary(dewe_data_path)
         RAW_dict = build_RAW_dictionary(dewe_data_path)
         
+        loaded_KPI = False
+        loaded_RAW = False
+        
+        shot = get_shot(KPI_dict["AST"])
+        if shot is None: return
+        
+        KPI_file_name = "KPI-"+shot
+        RAW_file_name = "RAW-"+shot
+        
         if KPI_dict is not(None) and RAW_dict is not(None):
-            shot = get_shot(KPI_dict["AST"])
-            if shot is not(None):
-                target_path = get_target_path(couch_dir, KPI_dict["AST"])
-                
-                KPI_dictName = shot + "KPI.json"
-                RAW_dictName = shot + "Raw.json"
-                print("Uploading shot: " + shot + " to CouchDB")
-                write_json(KPI_dict, join(target_path,KPI_dictName))
-                write_json(RAW_dict, join(target_path,RAW_dictName))
-                
-                # Remove dewesoft files
-                rmtree(dewe_data_path)
-                remove(dewe_data_path + '.dxd')
+            result = load_kpi(KPI_dict, config)
+            if result: loaded_KPI == True
+            result = load_raw(RAW_dict, config)
+            if result: loaded_RAW == True
+            
+        update_history_table(RAW_file_name, loaded_RAW)
+        update_history_table(KPI_file_name, loaded_KPI)      
+            
+        if loaded_KPI and loaded_RAW:
+4            # Remove dewesoft files
+            rmtree(dewe_data_path)
+            remove(dewe_data_path + '.dxd')
+
 
 if __name__ == '__main__':
     to_couchDB()

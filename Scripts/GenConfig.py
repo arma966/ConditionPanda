@@ -1,63 +1,68 @@
-from json import dump 
+import configparser
+from os.path import normpath
 
 def developement_config():
-    influx_dict = {"Org": "myorg",
-                  "Token": "mytoken",
-                  "Measurement": "Monitoring",
-                  "Client URL": "http://localhost:8086",
-                  "KPI Bucket": "KPI_db",
-                  "AutoLoad": "True",
-                  "LogDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB\\Log\\Log.txt"
-        }
+    global config
+    global ConfigFile
     
-    dewe_dict = {"DataDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\Scripts\\AutomationData",
-                "SetupFile": "AccSetup2.xml",
-                "FileName": "LattePanda",
-                "Record duration": 10000,
-                "Sampling frequency": 20000,
-                "Sensor name": "AI 1"
-        }
+    data_dir = "D://Documents//Uni//Tesi//ConditionPanda//Scripts//AutomationData"
+    log_dir = "D://Documents//Uni//Tesi//ConditionPanda//CouchDB//Log//Log.txt"
+    couch_dir = "D://Documents//Uni//Tesi//ConditionPanda//CouchDB//Log//Log.txt"
     
-    couch_dict = {"couchDir": "D:\\Documents\\Uni\\Tesi\\ConditionPanda\\CouchDB"
-        }
+    config["DEWESOFT"]["data_dir"] = normpath(data_dir)
+    config["DEWESOFT"]["setup_file"] = "AccSetup2.xml"
+    config["DEWESOFT"]["record_duration"] = "10000"
+    config["DEWESOFT"]["sampling_frequency"] = "20000"
+    config["DEWESOFT"]["file_name"] = "LattePanda"
+    config["DEWESOFT"]["sensor_name"] = "AI 1"
     
-    config = {"Dewesoft": dewe_dict,
-              "InfluxDB": influx_dict,
-              "CouchDB": couch_dict
-        }
+    config["INFLUXDB"]["measurement"] = "Monitoring"
+    config["INFLUXDB"]["Org"] = "myorg"
+    config["INFLUXDB"]["Token"] = "mytoken"
+    config["INFLUXDB"]["KPIbucket"] = "KPI_db"
+    config["INFLUXDB"]["InfluxURL"] = "http://localhost:8086"
+    config["INFLUXDB"]["auto_load"] = "True"
+    config["INFLUXDB"]["log_dir"] = normpath(log_dir)
+    
+    config["COUCHDB"]["couch_dir"] = normpath(couch_dir)
+    config["COUCHDB"]["couch_url"] = "http://localhost:5984"
+    config["COUCHDB"]["username"] = "LattepandaCouch"
+    config["COUCHDB"]["password"] = "peanut96"
 
-    with open('Config.json', 'w') as f:
-        dump(config, f, indent = 4)
+    with open(ConfigFile,'w') as f:
+        config.write(f)
     f.close()
 
 
 def production_config():
-    influx_dict = {"Org": "myorg",
-                  "Token": "mytoken",
-                  "Measurement": "Monitoring",
-                  "Client URL": "http://192.168.1.5:8086",
-                  "KPI Bucket": "KPI_db",
-                  "AutoLoad": "True",
-                  "LogDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\CouchDB\\Log\\Log.txt"
-        }
+    global config
+    global ConfigFile
     
-    dewe_dict = {"DataDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\Scripts\\AutomationData",
-                "SetupFile": "AccSetup2.xml",
-                "FileName": "LattePanda",
-                "Record duration": 10000,
-                "Sampling frequency": 20000,
-                "Sensor name": "AI 1"
-        }
+    data_dir = "C://Users//LattePanda//Documents//ConditionPanda//Scripts//AutomationData"
+    log_dir = "C://Users//LattePanda//Documents//ConditionPanda//CouchDB//Log//Log.txt"
+    couch_dir = "C://Users//LattePanda//Documents//ConditionPanda//CouchDB"
     
-    couch_dict = {"couchDir": "C:\\Users\\LattePanda\\Documents\\ConditionPanda\\CouchDB"
-        }
+    config["DEWESOFT"]["data_dir"] = normpath(data_dir)
+    config["DEWESOFT"]["setup_file"] = "AccSetup2.xml"
+    config["DEWESOFT"]["record_duration"] = "10000"
+    config["DEWESOFT"]["sampling_frequency"] = "20000"
+    config["DEWESOFT"]["file_name"] = "LattePanda"
+    config["DEWESOFT"]["sensor_name"] = "AI 1"
     
-    config = {"Dewesoft": dewe_dict,
-              "InfluxDB": influx_dict,
-              "CouchDB": couch_dict
-        }
-    with open('Config.json', 'w') as f:
-        dump(config, f, indent = 4)
+    config["INFLUXDB"]["measurement"] = "Monitoring"
+    config["INFLUXDB"]["Org"] = "myorg"
+    config["INFLUXDB"]["Token"] = "mytoken"
+    config["INFLUXDB"]["KPIbucket"] = "KPI_db"
+    config["INFLUXDB"]["InfluxURL"] = "http://192.168.1.5:8086"
+    config["INFLUXDB"]["auto_load"] = "True"
+    config["INFLUXDB"]["log_dir"] = normpath(log_dir)
+    
+    config["COUCHDB"]["couch_dir"] = normpath(couch_dir)
+    config["COUCHDB"]["couch_url"] = "http://192.168.1.5:5984"
+    config["COUCHDB"]["username"] = "LattepandaCouch"
+    config["COUCHDB"]["password"] = "peanut96"
+    with open(ConfigFile,'w') as f:
+        config.write(f)
     f.close()
 
 
@@ -71,7 +76,16 @@ def generate_config(conf):
     else:
         print("Invalid parameter")
 
+
 if __name__ == '__main__':
+    # Read config file
+    ConfigFile = "config.ini"
+    config = configparser.ConfigParser()
+    
+    config.add_section("DEWESOFT")
+    config.add_section("INFLUXDB")
+    config.add_section("COUCHDB")
+    
     print("Avaliable configurations:")
     print("'d'   Developement")
     print("'p'   Production")

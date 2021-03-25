@@ -3,17 +3,15 @@
 	<System Name="Local">
 		<SysInfo>
 			<Software>
-				<VersionCreated>2020.2 (RELEASE-201208) (64-bit)</VersionCreated>
-				<VersionModifed>2020.2 (RELEASE-201208) (64-bit)</VersionModifed>
+				<VersionCreated>2021.1 (RELEASE-210311) (64-bit)</VersionCreated>
+				<VersionModifed>2021.1 (RELEASE-210311) (64-bit)</VersionModifed>
 			</Software>
 			<Computer>
-				<HDD_C_Total>353975 MB</HDD_C_Total>
-				<HDD_C_Free>114684 MB</HDD_C_Free>
-				<HDD_D_Total>953852 MB</HDD_D_Total>
-				<HDD_D_Free>581856 MB</HDD_D_Free>
-				<RAM_Total>32653 MB</RAM_Total>
-				<RAM_Free>17108 MB</RAM_Free>
-				<OS_Type>Windows 10 Build 19042</OS_Type>
+				<HDD_C_Total>58991 MB</HDD_C_Total>
+				<HDD_C_Free>18278 MB</HDD_C_Free>
+				<RAM_Total>8014 MB</RAM_Total>
+				<RAM_Free>1906 MB</RAM_Free>
+				<OS_Type>Windows 10 Build 18363</OS_Type>
 			</Computer>
 			<Devices>
 				<RealMeasurement>
@@ -22,6 +20,9 @@
 						<Interface ID="{A64D011E-EBE2-4F92-B094-5DF0B799A896}"></Interface>
 						<Interface ID="{1C931CE3-4BBC-4429-9A33-9841AA7AF94B}"></Interface>
 						<Interface ID="{E3980EAB-ACAF-4796-9B5E-A8542A1542AF}"></Interface>
+						<Interface ID="{CB1B3E7D-5E1E-4538-B965-7CAD571EE55A}">
+							<InterfacePorts></InterfacePorts>
+						</Interface>
 						<Card Index="0">
 							<DeviceName>IOLITEdi-1xACC</DeviceName>
 							<DeviceSerialNumber>DA20109207</DeviceSerialNumber>
@@ -89,7 +90,7 @@
 				<Plugin Index="{EBF5FB6C-5234-4BAF-BB0E-C9B07F9E0016}" Descr="Siemens S7" Version="1.2.1">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{E84E4F26-1E75-48B1-A60B-A239C195E248}" Descr="DS-IMU" Version="3.3.1">
+				<Plugin Index="{E84E4F26-1E75-48B1-A60B-A239C195E248}" Descr="DS-IMU" Version="3.3.2">
 					<Used>False</Used>
 				</Plugin>
 				<Plugin Index="{C97268C1-D171-417A-96F1-F6D131426894}" Descr="RoaDyn2000" Version="4.7.0">
@@ -101,49 +102,49 @@
 				<Plugin Index="{AAAB2B14-1146-48F9-A4A8-6E519AC1775B}" Descr="CPAD2" Version="2.0.3">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{EAD0C2D4-0775-4486-9C81-CEBB4640CE99}" Descr="Excel Writer" Version="1.4.2">
-					<Used>False</Used>
-				</Plugin>
 				<Plugin Index="{0703F7E0-21AA-4EE6-9036-7D968650B91D}" Descr="iNET Plugin" Version="3.1.1">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{1CC6B503-CA18-422D-9A45-61AB6236C81D}" Descr="Ethernet receiver" Version="4.2.5">
+				<Plugin Index="{EAD0C2D4-0775-4486-9C81-CEBB4640CE99}" Descr="Excel Writer" Version="1.4.2">
+					<Used>False</Used>
+				</Plugin>
+				<Plugin Index="{1CC6B503-CA18-422D-9A45-61AB6236C81D}" Descr="Ethernet receiver" Version="4.2.6">
 					<Used>False</Used>
 				</Plugin>
 				<Plugin Index="{00450C0E-F19B-428E-851F-C206BC676836}" Descr="Brake noise" Version="1.3.6">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{199B8A9E-32A4-49C6-A033-F31A61CDF502}" Descr="ARINC_MIL1553" Version="3.2.2">
-					<Used>False</Used>
-				</Plugin>
-				<Plugin Index="{636D4CE1-B6B1-4517-A966-9677E515339F}" Descr="KiRoad" Version="3.3.0">
+				<Plugin Index="{199B8A9E-32A4-49C6-A033-F31A61CDF502}" Descr="ARINC_MIL1553" Version="3.2.4">
 					<Used>False</Used>
 				</Plugin>
 				<Plugin Index="{0BEC4A41-B2FB-4804-A181-CC82085131FC}" Descr="OPC UA server" Version="3.1.4">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{EBC129BB-DB9A-46EE-9A90-BDBE23BA98F0}" Descr="Historian Client" Version="1.0.6">
+				<Plugin Index="{636D4CE1-B6B1-4517-A966-9677E515339F}" Descr="KiRoad" Version="3.3.0">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{4BC05A61-29E6-4138-90EF-C9E5278343A7}" Descr="FlexRay" Version="2.0.2">
+				<Plugin Index="{EBC129BB-DB9A-46EE-9A90-BDBE23BA98F0}" Descr="Historian Client" Version="1.0.7">
+					<Used>False</Used>
+				</Plugin>
+				<Plugin Index="{4BC05A61-29E6-4138-90EF-C9E5278343A7}" Descr="FlexRay" Version="2.0.3">
 					<Used>False</Used>
 				</Plugin>
 				<Plugin Index="{ACFD147E-5898-48D9-9F40-AB8FBD06E354}" Descr="Serial Com" Version="2.3.1">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{936E655A-55F4-40E7-9A63-E0F07153AB7E}" Descr="Sound intensity" Version="3.1.2">
+				<Plugin Index="{936E655A-55F4-40E7-9A63-E0F07153AB7E}" Descr="Sound intensity" Version="3.1.3">
 					<Used>False</Used>
 				</Plugin>
 				<Plugin Index="{2C548ADB-71DA-4F07-A413-7ECA93FF8FB7}" Descr="OxTS" Version="1.1.3">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{09FC95F3-18B1-41AE-A44E-DD4D0719614A}" Descr="Sound power" Version="4.2.1">
+				<Plugin Index="{09FC95F3-18B1-41AE-A44E-DD4D0719614A}" Descr="Sound power" Version="4.3.3">
 					<Used>False</Used>
 				</Plugin>
 				<Plugin Index="{50A3789F-01A5-45C0-BCCE-D6AC30BC5FAB}" Descr="OBD2" Version="2.0.4">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{98A44F94-84DB-46AB-A8FB-4E68231921CA}" Descr="Chapter 10" Version="7.3.1">
+				<Plugin Index="{98A44F94-84DB-46AB-A8FB-4E68231921CA}" Descr="Chapter 10" Version="7.3.6">
 					<Used>False</Used>
 				</Plugin>
 				<Plugin Index="{D97C530B-0655-45F7-8748-FC45559756FE}" Descr="DS NET" Version="5.1.2">
@@ -170,34 +171,34 @@
 				<Plugin Index="{DF4BDF00-3320-415C-BF17-2A62FBC2F57D}" Descr="Velodyne" Version="2.0.0">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{7A308F49-7C00-42C4-B9E6-6C81C37B4363}" Descr="PCM" Version="12.1.3">
+				<Plugin Index="{7A308F49-7C00-42C4-B9E6-6C81C37B4363}" Descr="PCM" Version="12.1.5">
 					<Used>False</Used>
 				</Plugin>
 				<Plugin Index="{3AC707FC-5154-4BE6-938A-16809797CFD7}" Descr="ADMA Ethernet" Version="1.1.2">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{615B5968-4054-47C5-ABAB-0A2FB0986843}" Descr="xCP" Version="3.0.4">
+				<Plugin Index="{09A058FF-D127-49E0-8185-A34F06FD6F81}" Descr="NMEA GNSS" Version="1.0.0">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{FA700D17-9074-4CB1-81D6-2FA8B6FB2C59}" Descr="LORDMicroStrain" Version="2.3.1">
+				<Plugin Index="{615B5968-4054-47C5-ABAB-0A2FB0986843}" Descr="xCP" Version="4.0.0">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{F3FF8236-E755-49C6-9DA8-484D1AE2B38A}" Descr="XCP Slave" Version="1.0.2">
+				<Plugin Index="{FA700D17-9074-4CB1-81D6-2FA8B6FB2C59}" Descr="LORDMicroStrain" Version="2.3.2">
+					<Used>False</Used>
+				</Plugin>
+				<Plugin Index="{F3FF8236-E755-49C6-9DA8-484D1AE2B38A}" Descr="XCP Slave" Version="1.0.4">
 					<Used>False</Used>
 				</Plugin>
 				<Plugin Index="{B75010ED-4933-49E9-B05A-FA9C8EC4EA0A}" Descr="AutoExport" Version="1.9.1">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{16E70608-CBD8-4C73-9C0E-D1E9FFA30F34}" Descr="OBDII" Version="3.1.3">
+				<Plugin Index="{16E70608-CBD8-4C73-9C0E-D1E9FFA30F34}" Descr="OBDII" Version="3.1.4">
 					<Used>False</Used>
 				</Plugin>
-				<Plugin Index="{1A219CA0-9403-4CCF-953E-73EE14F226F0}" Descr="TestBed" Version="7.0.8">
+				<Plugin Index="{1A219CA0-9403-4CCF-953E-73EE14F226F0}" Descr="TestBed" Version="7.0.11">
 					<Used>False</Used>
 				</Plugin>
 				<Plugin Index="{25DF77CE-AAC1-4E93-A76F-AFB7B72CFEF2}" Descr="Polygon" Version="3.3.1">
-					<Used>False</Used>
-				</Plugin>
-				<Plugin Index="{97926AB7-1654-4C7B-B756-596A7B43CBE8}" Descr="Optris" Version="1.3.4">
 					<Used>False</Used>
 				</Plugin>
 			</Plugins>
@@ -206,7 +207,7 @@
 					<GUID>{DC3E3418-BE06-4A5F-AF6E-1E8D0B31BB09}</GUID>
 					<Name>Historian Importer</Name>
 					<FileName>HistorianImporter_64.imp</FileName>
-					<Version>1.0.2</Version>
+					<Version>1.0.4</Version>
 					<Vendor>Dewesoft</Vendor>
 					<Setup>
 						<Parameters>
@@ -218,7 +219,7 @@
 					<GUID>{067D8D1B-0C1E-4996-8AB0-61689DF63600}</GUID>
 					<Name>Text Files</Name>
 					<FileName>TxtImport64.imp</FileName>
-					<Version>3.1.2</Version>
+					<Version>3.1.3</Version>
 					<Vendor>Dewesoft</Vendor>
 					<Extension>txt</Extension>
 				</Import>
@@ -239,9 +240,10 @@
 		</SysInfo>
 		<ProjectSetup>
 			<FilesFolders>
-				<SetupFolder>C:\Users\Public\Documents\Dewesoft\Setups\</SetupFolder>
-				<DataFolder>D:\Documents\Uni\Tesi\ConditionPanda\Scripts\AutomationData\</DataFolder>
-				<ExportFolder>C:\Users\Public\Documents\Dewesoft\Exports\</ExportFolder>
+				<SetupFolder>C:\Users\LattePanda\Documents\Dewesoft\Setups\</SetupFolder>
+				<DataFolder>C:\Users\LattePanda\Documents\ConditionPanda\Scripts\AutomationData\</DataFolder>
+				<ExportFolder>C:\Users\LattePanda\Documents\Dewesoft\Exports\</ExportFolder>
+				<OverwriteByDefault>True</OverwriteByDefault>
 			</FilesFolders>
 			<Math>
 				<Math Index="{BB433873-66F8-488C-924B-F71D68506400}" Name="Acoustic weighting filters"></Math>
@@ -302,7 +304,7 @@
 			</Math>
 			<Trigger>
 				<MulticastTrigger>
-					<InterfaceGUID>{D00AFFAD-C6DB-4A80-8D3D-F75C12AD2E5F}</InterfaceGUID>
+					<InterfaceGUID>{08F98E56-7051-4C32-BD1B-77E0605FA978}</InterfaceGUID>
 				</MulticastTrigger>
 			</Trigger>
 			<Export>
@@ -310,11 +312,14 @@
 				<DefaultFileExport>7</DefaultFileExport>
 				<DefaultTimeAxis>2</DefaultTimeAxis>
 				<ExportPerChannel>True</ExportPerChannel>
-				<ExportSetup>True</ExportSetup>
-				<Export_RMS>True</Export_RMS>
-				<Export_Ave>True</Export_Ave>
+				<Export_Min>False</Export_Min>
+				<Export_Max>False</Export_Max>
 			</Export>
 			<Visuals>
+				<Display>
+					<RelativeTimeFormat>1</RelativeTimeFormat>
+					<DisplayFontSize>6</DisplayFontSize>
+				</Display>
 				<AnalogInFrame>
 					<Grid>
 						<Version>3</Version>
@@ -380,7 +385,6 @@
 				</SystemMonitorGrid>
 				<ExportFrame>
 					<CAExpItems dt="bin.base64" content="bin">CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</CAExpItems>
-					<ShowGroups>True</ShowGroups>
 					<Grid>
 					</Grid>
 				</ExportFrame>
@@ -391,42 +395,27 @@
 		</ProjectSetup>
 		<DewesoftSetup>
 			<Devices>
-				<SampleRate>5000</SampleRate>
+				<SampleRate>20000</SampleRate>
 				<Device Type="AI">
 					<Slot Index="0">
-						<MeasuredValue>IEPE</MeasuredValue>
-						<Range>200 mV</Range>
+						<MeasuredValue>VOLTAGE</MeasuredValue>
+						<Range>10 V</Range>
 						<LPFilter_Type>BE</LPFilter_Type>
 						<LPFilter_Hz>ALIASFREE_PHASELESS</LPFilter_Hz>
 						<LPFilter_Order>2</LPFilter_Order>
-						<HPFilter_Hz>1</HPFilter_Hz>
 						<OutputChannel>
 							<DisplayColor>#00FF00</DisplayColor>
 							<Name IsDefault="True">AI 1</Name>
-							<Description>setup2</Description>
-							<DefaultUnit>False</DefaultUnit>
-							<Unit>m/s2</Unit>
+							<Unit>V</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>
 							<DefaultComplexPresent>1</DefaultComplexPresent>
 							<SRDiv IsDefault="True">1</SRDiv>
 							<Used>True</Used>
 							<Index>AI;0</Index>
 							<DataType>5</DataType>
-							<Scale>0.0980392156862745</Scale>
 							<BitsLog>0</BitsLog>
 							<SigBitCount>19</SigBitCount>
-							<ExportOrder>1</ExportOrder>
 							<BitCount>0</BitCount>
-							<SIUnit>
-								<Label>m/s2</Label>
-								<PhysicalQuantity>ACCELERATION</PhysicalQuantity>
-								<MetricPos>0</MetricPos>
-								<ImperialPos>0</ImperialPos>
-								<CustomPos>0</CustomPos>
-								<EditEnable>False</EditEnable>
-								<Scale>1</Scale>
-							</SIUnit>
-							<MeasuredQuantity>ACCELERATION</MeasuredQuantity>
 							<ResamplerType>-1</ResamplerType>
 						</OutputChannel>
 						<NamePrefix>1</NamePrefix>
@@ -437,33 +426,20 @@
 								<Revision>255.255.255.255</Revision>
 								<Firmware>1.03</Firmware>
 								<CalDate>09.11.2020</CalDate>
-								<Measurement>IEPE</Measurement>
-								<Range>200 mV</Range>
+								<Measurement>Voltage</Measurement>
+								<Range>10 V</Range>
 								<LP_filter>AAF (zero-phase distortion)*</LP_filter>
-								<HP_filter>AC  1 Hz</HP_filter>
-								<Excitation>4 mA</Excitation>
+								<HP_filter>DC</HP_filter>
 							</AmplifierInfo>
 						</AmplifierChainInfo>
-						<AnalogMath>
-							<AMItem Index="0">
-								<Id>0</Id>
-								<MathType>4</MathType>
-								<Name>Displacement</Name>
-								<ChName>s</ChName>
-							</AMItem>
-							<AMItem Index="1">
-								<Id>1</Id>
-								<MathType>3</MathType>
-								<Name>Velocity</Name>
-								<ChName>v</ChName>
-							</AMItem>
-						</AnalogMath>
+						<AnalogMath></AnalogMath>
 					</Slot>
 				</Device>
 				<Device Type="Event log">
 					<Slot Index="0">
 						<DisplayColor>#FFFF00</DisplayColor>
 						<Name>Alarm events</Name>
+						<Unit IsDefault="True">-</Unit>
 						<ComplexIBBuffers>True</ComplexIBBuffers>
 						<DefaultComplexPresent>1</DefaultComplexPresent>
 						<SRDiv IsDefault="True">1</SRDiv>
@@ -474,13 +450,13 @@
 						<BitsLog>16</BitsLog>
 						<DisplayFormat>5</DisplayFormat>
 						<Exported>False</Exported>
-						<ExportOrder>18</ExportOrder>
 						<BitCount>0</BitCount>
 						<ResamplerType>-1</ResamplerType>
 					</Slot>
 					<Slot Index="1">
 						<DisplayColor>#FFFF00</DisplayColor>
 						<Name>Application events</Name>
+						<Unit IsDefault="True">-</Unit>
 						<ComplexIBBuffers>True</ComplexIBBuffers>
 						<DefaultComplexPresent>1</DefaultComplexPresent>
 						<SRDiv IsDefault="True">1</SRDiv>
@@ -499,6 +475,7 @@
 					<Slot Index="2">
 						<DisplayColor>#FFFF00</DisplayColor>
 						<Name>Data events</Name>
+						<Unit IsDefault="True">-</Unit>
 						<ComplexIBBuffers>True</ComplexIBBuffers>
 						<DefaultComplexPresent>1</DefaultComplexPresent>
 						<SRDiv IsDefault="True">1</SRDiv>
@@ -509,7 +486,6 @@
 						<BitsLog>16</BitsLog>
 						<DisplayFormat>5</DisplayFormat>
 						<Exported>False</Exported>
-						<ExportOrder>8</ExportOrder>
 						<BitCount>0</BitCount>
 						<ExpectedAsyncRate>10</ExpectedAsyncRate>
 						<ResamplerType>-1</ResamplerType>
@@ -520,9 +496,8 @@
 				</Device>
 			</Devices>
 			<Math>
-				<Math Type="Basic_statistics" Index="1" ClassIndex="0">
+				<Math Type="Basic_statistics" Index="0" ClassIndex="0">
 					<Name>Basic stat. 1</Name>
-					<Offline>1</Offline>
 					<DisplayTemplatesNotGenerated>True</DisplayTemplatesNotGenerated>
 					<SelectedTemplate>&lt;None&gt;</SelectedTemplate>
 					<Context>
@@ -532,9 +507,8 @@
 						<InputConnection Index="3" Descr="BlockSize"></InputConnection>
 					</Context>
 					<CalcRms>True</CalcRms>
-					<CalcMin>True</CalcMin>
-					<CalcMax>True</CalcMax>
 					<CalcPeak>True</CalcPeak>
+					<CalcPeakPeak>True</CalcPeakPeak>
 					<CalcCrest>True</CalcCrest>
 					<CalcVar>True</CalcVar>
 					<Trigger>
@@ -553,115 +527,91 @@
 						<OutputChannel Descr="RMS">
 							<DisplayColor>#00FFAA</DisplayColor>
 							<Name IsDefault="True">AI 1/RMS</Name>
-							<Unit>m/s2</Unit>
+							<Unit>V</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>
 							<DefaultComplexPresent>1</DefaultComplexPresent>
 							<SRDiv IsDefault="True">1</SRDiv>
 							<Used>True</Used>
-							<Index>Math;1;0;RMS</Index>
+							<Index>Math;0;0;RMS</Index>
 							<DataType>5</DataType>
-							<SecondX>19.6078434294345</SecondX>
 							<Async>True</Async>
 							<BitsLog>16</BitsLog>
-							<ExportOrder>2</ExportOrder>
 							<BitCount>0</BitCount>
 							<ExpectedAsyncRate>10</ExpectedAsyncRate>
 							<ResamplerType>-1</ResamplerType>
-							<DefaultMax>19.6078434294345</DefaultMax>
+							<DefaultMax>10</DefaultMax>
 							<DefaultMin>0</DefaultMin>
-						</OutputChannel>
-						<OutputChannel Descr="MIN">
-							<DisplayColor>#00FFAA</DisplayColor>
-							<Name IsDefault="True">AI 1/MIN</Name>
-							<Unit>m/s2</Unit>
-							<ComplexIBBuffers>True</ComplexIBBuffers>
-							<DefaultComplexPresent>1</DefaultComplexPresent>
-							<SRDiv IsDefault="True">1</SRDiv>
-							<Used>True</Used>
-							<Index>Math;1;0;MIN</Index>
-							<DataType>5</DataType>
-							<Async>True</Async>
-							<BitsLog>16</BitsLog>
-							<ExportOrder>3</ExportOrder>
-							<BitCount>0</BitCount>
-							<ExpectedAsyncRate>10</ExpectedAsyncRate>
-							<ResamplerType>-1</ResamplerType>
-							<DefaultMax>19.6078434294345</DefaultMax>
-							<DefaultMin>-19.6078434294345</DefaultMin>
-						</OutputChannel>
-						<OutputChannel Descr="MAX">
-							<DisplayColor>#00FFAA</DisplayColor>
-							<Name IsDefault="True">AI 1/MAX</Name>
-							<Unit>m/s2</Unit>
-							<ComplexIBBuffers>True</ComplexIBBuffers>
-							<DefaultComplexPresent>1</DefaultComplexPresent>
-							<SRDiv IsDefault="True">1</SRDiv>
-							<Used>True</Used>
-							<Index>Math;1;0;MAX</Index>
-							<DataType>5</DataType>
-							<Async>True</Async>
-							<BitsLog>16</BitsLog>
-							<ExportOrder>4</ExportOrder>
-							<BitCount>0</BitCount>
-							<ExpectedAsyncRate>10</ExpectedAsyncRate>
-							<ResamplerType>-1</ResamplerType>
-							<DefaultMax>19.6078434294345</DefaultMax>
-							<DefaultMin>-19.6078434294345</DefaultMin>
 						</OutputChannel>
 						<OutputChannel Descr="PEAK">
 							<DisplayColor>#00FFAA</DisplayColor>
 							<Name IsDefault="True">AI 1/PEAK</Name>
-							<Unit>m/s2</Unit>
+							<Unit>V</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>
 							<DefaultComplexPresent>1</DefaultComplexPresent>
 							<SRDiv IsDefault="True">1</SRDiv>
 							<Used>True</Used>
-							<Index>Math;1;0;PEAK</Index>
+							<Index>Math;0;0;PEAK</Index>
 							<DataType>5</DataType>
 							<Async>True</Async>
 							<BitsLog>16</BitsLog>
-							<ExportOrder>5</ExportOrder>
 							<BitCount>0</BitCount>
 							<ExpectedAsyncRate>10</ExpectedAsyncRate>
 							<ResamplerType>-1</ResamplerType>
-							<DefaultMax>19.6078434294345</DefaultMax>
+							<DefaultMax>10</DefaultMax>
+							<DefaultMin>0</DefaultMin>
+						</OutputChannel>
+						<OutputChannel Descr="PEAK-PEAK">
+							<DisplayColor>#00FFAA</DisplayColor>
+							<Name IsDefault="True">AI 1/PEAK-PEAK</Name>
+							<Unit>V</Unit>
+							<ComplexIBBuffers>True</ComplexIBBuffers>
+							<DefaultComplexPresent>1</DefaultComplexPresent>
+							<SRDiv IsDefault="True">1</SRDiv>
+							<Used>True</Used>
+							<Index>Math;0;0;PEAK-PEAK</Index>
+							<DataType>5</DataType>
+							<Async>True</Async>
+							<BitsLog>16</BitsLog>
+							<BitCount>0</BitCount>
+							<ExpectedAsyncRate>10</ExpectedAsyncRate>
+							<ResamplerType>-1</ResamplerType>
+							<DefaultMax>20</DefaultMax>
 							<DefaultMin>0</DefaultMin>
 						</OutputChannel>
 						<OutputChannel Descr="CREST FACTOR">
 							<DisplayColor>#00FFAA</DisplayColor>
 							<Name IsDefault="True">AI 1/CREST FACTOR</Name>
+							<Unit IsDefault="True">-</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>
 							<DefaultComplexPresent>1</DefaultComplexPresent>
 							<SRDiv IsDefault="True">1</SRDiv>
 							<Used>True</Used>
-							<Index>Math;1;0;CREST FACTOR</Index>
+							<Index>Math;0;0;CREST FACTOR</Index>
 							<DataType>5</DataType>
 							<Async>True</Async>
 							<BitsLog>16</BitsLog>
-							<ExportOrder>6</ExportOrder>
 							<BitCount>0</BitCount>
 							<ExpectedAsyncRate>10</ExpectedAsyncRate>
 							<ResamplerType>-1</ResamplerType>
-							<DefaultMax>19.6078434294345</DefaultMax>
+							<DefaultMax>10</DefaultMax>
 							<DefaultMin>0</DefaultMin>
 						</OutputChannel>
 						<OutputChannel Descr="VAR">
 							<DisplayColor>#00FFAA</DisplayColor>
 							<Name IsDefault="True">AI 1/VAR</Name>
-							<Unit>m/s2</Unit>
+							<Unit>V</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>
 							<DefaultComplexPresent>1</DefaultComplexPresent>
 							<SRDiv IsDefault="True">1</SRDiv>
 							<Used>True</Used>
-							<Index>Math;1;0;VAR</Index>
+							<Index>Math;0;0;VAR</Index>
 							<DataType>5</DataType>
 							<Async>True</Async>
 							<BitsLog>16</BitsLog>
-							<ExportOrder>7</ExportOrder>
 							<BitCount>0</BitCount>
 							<ExpectedAsyncRate>10</ExpectedAsyncRate>
 							<ResamplerType>-1</ResamplerType>
-							<DefaultMax>19.6078434294345</DefaultMax>
+							<DefaultMax>10</DefaultMax>
 							<DefaultMin>0</DefaultMin>
 						</OutputChannel>
 					</Module>
@@ -681,14 +631,7 @@
 			</Math>
 			<SetupModules>
 				<SetupModule ID="23" Name="Channels">
-					<Enabled>True</Enabled>
 					<DisplayTemplatesNotGenerated>True</DisplayTemplatesNotGenerated>
-				</SetupModule>
-				<SetupModule ID="19" Name="Events">
-					<Enabled>True</Enabled>
-				</SetupModule>
-				<SetupModule ID="13" Name="Data header">
-					<Enabled>True</Enabled>
 				</SetupModule>
 				<SetupModule ID="10" Name="SRS">
 					<DisplayTemplatesNotGenerated>True</DisplayTemplatesNotGenerated>
@@ -721,14 +664,11 @@
 				<Trigger>
 					<DataStoreMode>2</DataStoreMode>
 					<PostTimeUsed>True</PostTimeUsed>
-					<PostTime>6000</PostTime>
+					<PostTime>2000</PostTime>
 				</Trigger>
-				<MultifileOptions Version="2">
-					<BaseName>LattePanda20210303174946</BaseName>
-				</MultifileOptions>
 			</Storing>
 			<UserInterface>
-				<SelectedSetupTab>AISetupSheet</SelectedSetupTab>
+				<SelectedSetupTab>GeneralSetupTabSheet</SelectedSetupTab>
 				<Displays>
 					<Images></Images>
 					<CurrentDisplayFrames>0</CurrentDisplayFrames>
@@ -739,36 +679,41 @@
 							<MaxY>346</MaxY>
 							<Selected>0</Selected>
 							<IconType>2</IconType>
-							<RecGroup Index="0">
-								<Top>211</Top>
+							<RecGroup Index="0" UniqueID="0">
+								<RelativeTop>0.0722543352601156</RelativeTop>
+								<RelativeWidth>1</RelativeWidth>
+								<RelativeHeight>0.927745664739884</RelativeHeight>
+								<Top>25</Top>
 								<Width>38</Width>
-								<Height>135</Height>
+								<Height>321</Height>
 								<Recorder Index="0">
 									<InputSlot Index="0">
-										<InputConnection>I[1;0]</InputConnection>
+										<InputConnection>I[1;0]|N[AI 1]</InputConnection>
 									</InputSlot>
 									<DefaultCaption>Recorder</DefaultCaption>
 									<Markers></Markers>
 									<XAxis>
 										<Ticks>
-											<Min>0.1456</Min>
-											<Max>5.1456</Max>
+											<Min>-5.8038</Min>
+											<Max>4.1962</Max>
 										</Ticks>
-										<Delta>4.9984</Delta>
 									</XAxis>
 									<YAxis>
 										<Ticks>
-											<Min>-2.2</Min>
-											<Max>2.2</Max>
+											<Min>-10</Min>
+											<Max>10</Max>
 										</Ticks>
 										<Axis Index="1">
-											<Min>-2.2</Min>
-											<Max>2.2</Max>
+											<Min>-10</Min>
+											<Max>10</Max>
 										</Axis>
 									</YAxis>
 								</Recorder>
+								<UniqueID>0</UniqueID>
 							</RecGroup>
-							<InputGroup Index="1">
+							<InputGroup Index="1" UniqueID="1">
+								<RelativeWidth>0.5</RelativeWidth>
+								<RelativeHeight>0.0722543352601156</RelativeHeight>
 								<Width>19</Width>
 								<Height>25</Height>
 								<Transparent>True</Transparent>
@@ -782,8 +727,12 @@
 									<MaxSlider>10</MaxSlider>
 									<CustomImages></CustomImages>
 								</InputControl>
+								<UniqueID>1</UniqueID>
 							</InputGroup>
-							<InputGroup Index="2">
+							<InputGroup Index="2" UniqueID="2">
+								<RelativeLeft>0.5</RelativeLeft>
+								<RelativeWidth>0.5</RelativeWidth>
+								<RelativeHeight>0.0722543352601156</RelativeHeight>
 								<Left>19</Left>
 								<Width>19</Width>
 								<Height>25</Height>
@@ -798,37 +747,8 @@
 									<MaxSlider>10</MaxSlider>
 									<CustomImages></CustomImages>
 								</InputControl>
+								<UniqueID>2</UniqueID>
 							</InputGroup>
-							<FFTGroup Index="3">
-								<Top>25</Top>
-								<Width>38</Width>
-								<Height>185</Height>
-								<FFT Index="0">
-									<InputSlot Index="0">
-										<InputConnection>I[1;0]</InputConnection>
-									</InputSlot>
-									<DefaultCaption>VC 3</DefaultCaption>
-									<XAxis>
-										<Ticks>
-											<Max>1953</Max>
-										</Ticks>
-										<Delta>1953</Delta>
-									</XAxis>
-									<YAxis>
-										<Ticks>
-											<Max>0.349999964237213</Max>
-										</Ticks>
-										<Axis Index="1">
-											<Max>0.349999964237213</Max>
-										</Axis>
-									</YAxis>
-									<Lines>4096</Lines>
-									<Zoom>
-										<Min>0</Min>
-										<Max>1953</Max>
-									</Zoom>
-								</FFT>
-							</FFTGroup>
 							<TemplateGUID>{9F26ACAB-3D06-427F-BEF3-731E15DD422D}</TemplateGUID>
 							<TemplateName>Recorder</TemplateName>
 						</SubDisplay>
@@ -836,6 +756,7 @@
 					<MainDisplay Index="1">
 						<SubDisplay Index="0">
 							<Name>Custom</Name>
+							<Init>True</Init>
 							<MaxX>38</MaxX>
 							<MaxY>346</MaxY>
 							<IconType>9</IconType>

@@ -5,3 +5,8 @@ To set up the lattepanda follow these steps
    version avaliable from git
  - run "python GenConfig.py" and enter 'p' to set the production configuration
  - run "python Config.py"
+
+ Limitations:
+  - The system works for only 1 sensor
+  - The measurements duration must be within the minute
+
