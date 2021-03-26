@@ -14,7 +14,7 @@ def isRunning():
 
 
 def deweAuto(dw, FileName, DataDir):
-    # Routine ____________________________________________________________________
+    # Routine ________________________________________________________________
     dw.Measure()
     print("Starting Storing")
     dw.StartStoring(FileName + ".dxd")
@@ -32,19 +32,19 @@ def deweAuto(dw, FileName, DataDir):
             finished = True
 
     dw.Stop()
+    print("Measure completed")
 
     # Calculate offline math (FFT, statistics, etc...)
     dw.Analyze()
     dw.OfflineCalc.Calculate()
-    dw.OfflineCalc.StoreCalculatedChannels()
 
     try:
         print("Exporting data")
         dw.ExportData(7, 2, join(DataDir, FileName))
-    except:
+    except Exception as e:
         print("Exporting failed")
+        print("Exception: " + str(e))
     dw.Measure()
-    print("Measure completed")
 
 
 def DeweInit(dw, data_dir, setup_file):

@@ -51,7 +51,8 @@ def get_file_to_load():
     ht = pd.read_csv("history_table.csv")
 
     # # Check if the file has already been loaded on couchDB
-    query = ht[(ht["influx_db"] == False) & (ht["file_name"].str.contains("KPI"))]
+    query = ht[(ht["influx_db"] == False) & 
+               (ht["file_name"].str.contains("KPI"))]
     file_to_load = query["file_name"].to_list()
     return file_to_load
 
@@ -159,11 +160,11 @@ def to_influx():
                 try:
                     write_client.write(bucket_name, org_name, data_points)
                 except Exception as e:
-                    print("Exceptio: " + str(e))
+                    print("Exception: " + str(e))
                 else:
                     print(str(file) + " loaded successfully")
                     upload_history_table(file)
-                    return data_points
+                    
 
 
 if __name__ == "__main__":

@@ -33,7 +33,7 @@ def read_file(file_name):
     else:
         return fft_data
 
-ù4
+
 def is_number(num):
     try:
         float(num)
@@ -123,7 +123,9 @@ def build_KPI_dictionary(file_dir):
     time_file_list = [
         f
         for f in listdir(file_dir)
-        if isfile(join(file_dir, f)) and not (f.find("_") == -1) and f.find("FFT") == -1
+        if isfile(join(file_dir, f)) 
+        and not (f.find("_") == -1) 
+        and f.find("FFT") == -1
     ]
 
     # IMPORTANT: for the future updates it is mandatory to iterate through
@@ -136,7 +138,7 @@ def build_KPI_dictionary(file_dir):
         file_path = join(file_dir, f)
         data = get_data(file_path)
         if data is not (None):
-            KPI_names = f[f.find("_") + 1: f.find(".")].replace(" ", "_")
+            KPI_names = f[f.find("_") + 1 : f.find(".")].replace(" ", "_")
             time_dictionary = {
                 "Dt": round((data[1, 0] - data[0, 0]) * 1000, 2),
                 "data": data[:, 1].tolist(),
@@ -147,7 +149,10 @@ def build_KPI_dictionary(file_dir):
     # Get the sensor data from the csv table
     try:
         sensor_table = read_csv("SensorTable.csv")
-        sensor_spec = sensor_table.query("Dewe_name == " + '"' + sensor_name + '"')
+        sensor_spec = sensor_table.query("Dewe_name == " 
+                                         + '"' 
+                                         + sensor_name 
+                                         + '"')
     except KeyError:
         print("Sensor not present in the table")
         sensor_dictionary = {}
@@ -172,10 +177,11 @@ def build_KPI_dictionary(file_dir):
 
     raw_file_path = join(file_dir, time_file_list[0])
     meta_data = get_metadata(raw_file_path)
-    
+
     # Build main dictionary
     # Build main dictionary
-    retrieved_date = datetime.strptime(meta_data["Start time"], "%m/%d/%Y %H:%M:%S.%f")
+    retrieved_date = datetime.strptime(meta_data["Start time"], 
+                                       "%m/%d/%Y %H:%M:%S.%f")
     delta = timedelta(milliseconds=int(meta_data["Post time"]))
     end_time = retrieved_date + delta
 
@@ -190,6 +196,7 @@ def build_KPI_dictionary(file_dir):
         "AET": end_time.isoformat(),
         "SF": meta_data["Sample rate"],
         "PT": meta_data["Post time"],
+        "Type": "KPI"
     }
     return KPI_dict
 
@@ -230,14 +237,17 @@ def build_RAW_dictionary(file_dir):
     meta_data = get_metadata(file_path)
 
     # Build main dictionary
-    retrieved_date = datetime.strptime(meta_data["Start time"], "%m/%d/%Y %H:%M:%S.%f")
+    retrieved_date = datetime.strptime(meta_data["Start time"], 
+                                       "%m/%d/%Y %H:%M:%S.%f")
     delta = timedelta(milliseconds=int(meta_data["Post time"]))
     end_time = retrieved_date + delta
 
     json_id = "RAW-" + get_shot(retrieved_date.isoformat())
 
     # Build FFT dictionary
-    fft_dict = {"Df": 0.5, "Window": "Blackman", "spectrum": parse_data(fft_file_path)}
+    fft_dict = {"Df": 0.5, 
+                "Window": "Blackman", 
+                "spectrum": parse_data(fft_file_path)}
     # Build sensor dictionary
     sensor_table = read_csv("SensorTable.csv")
     sensor_spec = sensor_table.query("Dewe_name == " + '"' + sensor_name + '"')
@@ -261,6 +271,7 @@ def build_RAW_dictionary(file_dir):
         "AET": end_time.isoformat(),
         "SF": int(meta_data["Sample rate"]),
         "PT": int(meta_data["Post time"]),
+        "Type": "RAW"
     }
     return RAW_dict
 
@@ -305,7 +316,9 @@ def get_target_path(couch_dir, date):
 def update_history_table(new_file_name, loaded):
     ht = pd.read_csv("history_table.csv")
 
-    new_file_entry = {"file_name": new_file_name, "couch_db": False, "influx_db": False}
+    new_file_entry = {"file_name": new_file_name, 
+                      "couch_db": False, 
+                      "influx_db": False}
 
     # Check if the file exist in the table
     query = ht[(ht["file_name"] == new_file_name)]
@@ -324,7 +337,7 @@ def update_history_table(new_file_name, loaded):
         print(new_file_name + " already uploaded to couchDB")
 
 
-def load_kpi(KPI_dict, config):
+def load_kpi(KPI_dict, config, KPI_file_name):
     username = config["COUCHDB"]["username"]
     password = config["COUCHDB"]["password"]
     couch_url = config["COUCHDB"]["couch_url"]
@@ -342,17 +355,20 @@ def load_kpi(KPI_dict, config):
         print("Can't load the file on CouchDB, an exception occurred")
         return False
     else:
-        if resp.status_code != 201:
-            print(resp.text)
-            print("Error, can't load the file on CouchDB: " + str(resp.status_code))
-            return False
-        else:
-            print("CouchDB loading successful: " + str(resp.status_code))
-
+        if resp.status_code == 409:
+            print("File already in CouchDB")
             return True
+        elif resp.status_code == 201:
+            print("CouchDB KPI loading successful: " + str(resp.status_code))
+            return True
+        else:
+            print(resp.text)
+            print("Error, can't load the file on CouchDB: " 
+                  + str(resp.status_code))
+            return False
 
 
-def load_raw(RAW_dict, config):
+def load_raw(RAW_dict, config, RAW_file_name):
     username = config["COUCHDB"]["username"]
     password = config["COUCHDB"]["password"]
     couch_url = config["COUCHDB"]["couch_url"]
@@ -370,14 +386,17 @@ def load_raw(RAW_dict, config):
         print("Can't load the file on CouchDB, an exception occurred")
         return False
     else:
-        if resp.status_code != 201:
-            print(resp.text)
-            print("Error, can't load the file on CouchDB: " + str(resp.status_code))
-            return False
+        if resp.status_code == 409:
+            print("File already in CouchDB")
+            return True
+        elif resp.status_code == 201:
+            print("CouchDB RAW loading successful: " + str(resp.status_code))
+            return True
         else:
-            print("CouchDB loading successful: " + str(resp.status_code))
-
-        return True
+            print(resp.text)
+            print("Error, can't load the file on CouchDB: " 
+                  + str(resp.status_code))
+            return False
 
 
 def to_couchDB():
@@ -387,15 +406,16 @@ def to_couchDB():
 
     data_dir = config["DEWESOFT"]["data_dir"]
 
-    dewe_folder_list = [f for f in listdir(data_dir) if isdir(join(data_dir, f))]
+    dewe_folder_list = [f for f in listdir(data_dir) 
+                        if isdir(join(data_dir, f))]
 
     if dewe_folder_list == []:
         print("There are no data acquired by the DAQ")
         return
 
     """
-    | For every folder created by exporting the acquired files, navigate through
-    | it and upload the data to couchDB
+    | For every folder created by exporting the acquired files, navigate 
+    | through it and upload the data to couchDB
     """
     for f in dewe_folder_list:
         dewe_data_path = join(data_dir, f)
@@ -414,12 +434,12 @@ def to_couchDB():
         RAW_file_name = "RAW-" + shot
 
         if KPI_dict is not (None) and RAW_dict is not (None):
-            result = load_kpi(KPI_dict, config)
+            result = load_kpi(KPI_dict, config, KPI_file_name)
             if result:
-                loaded_KPI == True
-            result = load_raw(RAW_dict, config)
+                loaded_KPI = True
+            result = load_raw(RAW_dict, config, RAW_file_name)
             if result:
-                loaded_RAW == True
+                loaded_RAW = True
 
         update_history_table(RAW_file_name, loaded_RAW)
         update_history_table(KPI_file_name, loaded_KPI)

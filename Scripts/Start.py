@@ -80,7 +80,7 @@ def Measure():
     FileName = config["DEWESOFT"]["file_name"] + msname
     dwa.deweAuto(dw, FileName, DataDir)
 
-    if checkVar.get() == True:
+    if checkVar.get() is True:
         print("Auto loading")
         dw.Measure()
         je.to_couchDB()
