@@ -8,9 +8,9 @@
 			</Software>
 			<Computer>
 				<HDD_C_Total>58991 MB</HDD_C_Total>
-				<HDD_C_Free>18278 MB</HDD_C_Free>
+				<HDD_C_Free>17315 MB</HDD_C_Free>
 				<RAM_Total>8014 MB</RAM_Total>
-				<RAM_Free>1906 MB</RAM_Free>
+				<RAM_Free>2298 MB</RAM_Free>
 				<OS_Type>Windows 10 Build 18363</OS_Type>
 			</Computer>
 			<Devices>
@@ -307,6 +307,9 @@
 					<InterfaceGUID>{08F98E56-7051-4C32-BD1B-77E0605FA978}</InterfaceGUID>
 				</MulticastTrigger>
 			</Trigger>
+			<Performance>
+				<DBInTime>10</DBInTime>
+			</Performance>
 			<Export>
 				<ExportProgram>2</ExportProgram>
 				<DefaultFileExport>7</DefaultFileExport>
@@ -385,6 +388,7 @@
 				</SystemMonitorGrid>
 				<ExportFrame>
 					<CAExpItems dt="bin.base64" content="bin">CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</CAExpItems>
+					<ShowGroups>True</ShowGroups>
 					<Grid>
 					</Grid>
 				</ExportFrame>
@@ -398,24 +402,37 @@
 				<SampleRate>20000</SampleRate>
 				<Device Type="AI">
 					<Slot Index="0">
-						<MeasuredValue>VOLTAGE</MeasuredValue>
-						<Range>10 V</Range>
+						<MeasuredValue>IEPE</MeasuredValue>
+						<Range>200 mV</Range>
 						<LPFilter_Type>BE</LPFilter_Type>
 						<LPFilter_Hz>ALIASFREE_PHASELESS</LPFilter_Hz>
 						<LPFilter_Order>2</LPFilter_Order>
+						<HPFilter_Hz>1</HPFilter_Hz>
 						<OutputChannel>
 							<DisplayColor>#00FF00</DisplayColor>
 							<Name IsDefault="True">AI 1</Name>
-							<Unit>V</Unit>
+							<DefaultUnit>False</DefaultUnit>
+							<Unit>m/s2</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>
 							<DefaultComplexPresent>1</DefaultComplexPresent>
 							<SRDiv IsDefault="True">1</SRDiv>
 							<Used>True</Used>
 							<Index>AI;0</Index>
 							<DataType>5</DataType>
+							<Scale>0.0980392156862745</Scale>
 							<BitsLog>0</BitsLog>
 							<SigBitCount>19</SigBitCount>
 							<BitCount>0</BitCount>
+							<SIUnit>
+								<Label>m/s2</Label>
+								<PhysicalQuantity>ACCELERATION</PhysicalQuantity>
+								<MetricPos>0</MetricPos>
+								<ImperialPos>0</ImperialPos>
+								<CustomPos>0</CustomPos>
+								<EditEnable>False</EditEnable>
+								<Scale>1</Scale>
+							</SIUnit>
+							<MeasuredQuantity>ACCELERATION</MeasuredQuantity>
 							<ResamplerType>-1</ResamplerType>
 						</OutputChannel>
 						<NamePrefix>1</NamePrefix>
@@ -426,13 +443,27 @@
 								<Revision>255.255.255.255</Revision>
 								<Firmware>1.03</Firmware>
 								<CalDate>09.11.2020</CalDate>
-								<Measurement>Voltage</Measurement>
-								<Range>10 V</Range>
+								<Measurement>IEPE</Measurement>
+								<Range>200 mV</Range>
 								<LP_filter>AAF (zero-phase distortion)*</LP_filter>
-								<HP_filter>DC</HP_filter>
+								<HP_filter>AC  1 Hz</HP_filter>
+								<Excitation>4 mA</Excitation>
 							</AmplifierInfo>
 						</AmplifierChainInfo>
-						<AnalogMath></AnalogMath>
+						<AnalogMath>
+							<AMItem Index="0">
+								<Id>0</Id>
+								<MathType>4</MathType>
+								<Name>Displacement</Name>
+								<ChName>s</ChName>
+							</AMItem>
+							<AMItem Index="1">
+								<Id>1</Id>
+								<MathType>3</MathType>
+								<Name>Velocity</Name>
+								<ChName>v</ChName>
+							</AMItem>
+						</AnalogMath>
 					</Slot>
 				</Device>
 				<Device Type="Event log">
@@ -511,6 +542,7 @@
 					<CalcPeakPeak>True</CalcPeakPeak>
 					<CalcCrest>True</CalcCrest>
 					<CalcVar>True</CalcVar>
+					<BlockSize>0.200000002980232</BlockSize>
 					<Trigger>
 						<Source>2</Source>
 					</Trigger>
@@ -527,7 +559,7 @@
 						<OutputChannel Descr="RMS">
 							<DisplayColor>#00FFAA</DisplayColor>
 							<Name IsDefault="True">AI 1/RMS</Name>
-							<Unit>V</Unit>
+							<Unit>m/s2</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>
 							<DefaultComplexPresent>1</DefaultComplexPresent>
 							<SRDiv IsDefault="True">1</SRDiv>
@@ -537,15 +569,15 @@
 							<Async>True</Async>
 							<BitsLog>16</BitsLog>
 							<BitCount>0</BitCount>
-							<ExpectedAsyncRate>10</ExpectedAsyncRate>
+							<ExpectedAsyncRate>5</ExpectedAsyncRate>
 							<ResamplerType>-1</ResamplerType>
-							<DefaultMax>10</DefaultMax>
+							<DefaultMax>19.6078434294345</DefaultMax>
 							<DefaultMin>0</DefaultMin>
 						</OutputChannel>
 						<OutputChannel Descr="PEAK">
 							<DisplayColor>#00FFAA</DisplayColor>
 							<Name IsDefault="True">AI 1/PEAK</Name>
-							<Unit>V</Unit>
+							<Unit>m/s2</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>
 							<DefaultComplexPresent>1</DefaultComplexPresent>
 							<SRDiv IsDefault="True">1</SRDiv>
@@ -555,15 +587,15 @@
 							<Async>True</Async>
 							<BitsLog>16</BitsLog>
 							<BitCount>0</BitCount>
-							<ExpectedAsyncRate>10</ExpectedAsyncRate>
+							<ExpectedAsyncRate>5</ExpectedAsyncRate>
 							<ResamplerType>-1</ResamplerType>
-							<DefaultMax>10</DefaultMax>
+							<DefaultMax>19.6078434294345</DefaultMax>
 							<DefaultMin>0</DefaultMin>
 						</OutputChannel>
 						<OutputChannel Descr="PEAK-PEAK">
 							<DisplayColor>#00FFAA</DisplayColor>
 							<Name IsDefault="True">AI 1/PEAK-PEAK</Name>
-							<Unit>V</Unit>
+							<Unit>m/s2</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>
 							<DefaultComplexPresent>1</DefaultComplexPresent>
 							<SRDiv IsDefault="True">1</SRDiv>
@@ -573,9 +605,9 @@
 							<Async>True</Async>
 							<BitsLog>16</BitsLog>
 							<BitCount>0</BitCount>
-							<ExpectedAsyncRate>10</ExpectedAsyncRate>
+							<ExpectedAsyncRate>5</ExpectedAsyncRate>
 							<ResamplerType>-1</ResamplerType>
-							<DefaultMax>20</DefaultMax>
+							<DefaultMax>39.2156868588691</DefaultMax>
 							<DefaultMin>0</DefaultMin>
 						</OutputChannel>
 						<OutputChannel Descr="CREST FACTOR">
@@ -591,15 +623,15 @@
 							<Async>True</Async>
 							<BitsLog>16</BitsLog>
 							<BitCount>0</BitCount>
-							<ExpectedAsyncRate>10</ExpectedAsyncRate>
+							<ExpectedAsyncRate>5</ExpectedAsyncRate>
 							<ResamplerType>-1</ResamplerType>
-							<DefaultMax>10</DefaultMax>
+							<DefaultMax>19.6078434294345</DefaultMax>
 							<DefaultMin>0</DefaultMin>
 						</OutputChannel>
 						<OutputChannel Descr="VAR">
 							<DisplayColor>#00FFAA</DisplayColor>
 							<Name IsDefault="True">AI 1/VAR</Name>
-							<Unit>V</Unit>
+							<Unit>m/s2</Unit>
 							<ComplexIBBuffers>True</ComplexIBBuffers>
 							<DefaultComplexPresent>1</DefaultComplexPresent>
 							<SRDiv IsDefault="True">1</SRDiv>
@@ -609,9 +641,145 @@
 							<Async>True</Async>
 							<BitsLog>16</BitsLog>
 							<BitCount>0</BitCount>
-							<ExpectedAsyncRate>10</ExpectedAsyncRate>
+							<ExpectedAsyncRate>5</ExpectedAsyncRate>
 							<ResamplerType>-1</ResamplerType>
-							<DefaultMax>10</DefaultMax>
+							<DefaultMax>19.6078434294345</DefaultMax>
+							<DefaultMin>0</DefaultMin>
+						</OutputChannel>
+					</Module>
+				</Math>
+				<Math Type="FFT" Index="1" ClassIndex="0">
+					<Name>FFT 1</Name>
+					<DisplayTemplatesNotGenerated>True</DisplayTemplatesNotGenerated>
+					<SelectedTemplate>&lt;None&gt;</SelectedTemplate>
+					<Context>
+						<SetupVersion>1</SetupVersion>
+						<OutputChannel Descr="FFT block count">
+							<DisplayColor>#FFFF00</DisplayColor>
+							<Name>FFT block count</Name>
+							<Unit>counts</Unit>
+							<ComplexIBBuffers>True</ComplexIBBuffers>
+							<DefaultComplexPresent>1</DefaultComplexPresent>
+							<SRDiv IsDefault="True">1</SRDiv>
+							<Used>True</Used>
+							<Index>Math;1;FFT block count</Index>
+							<DataType>5</DataType>
+							<Async>True</Async>
+							<BitsLog>16</BitsLog>
+							<BitCount>0</BitCount>
+							<ExpectedAsyncRate>0.5</ExpectedAsyncRate>
+							<ResamplerType>-1</ResamplerType>
+						</OutputChannel>
+					</Context>
+					<UseDCCutoff>True</UseDCCutoff>
+					<DCCutoff>1</DCCutoff>
+					<StopAfterXAveragesTime>8</StopAfterXAveragesTime>
+					<Lines>20000</Lines>
+					<UserDeltaF>0.5</UserDeltaF>
+					<UserBlockDuration>2</UserBlockDuration>
+					<FFTResolutionType>1</FFTResolutionType>
+					<OutputStopFreq>0</OutputStopFreq>
+					<Module Index="0">
+						<InputConnection Index="0">
+							<Descriptor>I[1;0]</Descriptor>
+						</InputConnection>
+						<OutputChannel Descr="AmplFFT">
+							<DisplayColor>#00FF00</DisplayColor>
+							<Name IsDefault="True">AI 1/AmplFFT</Name>
+							<Unit>m/s2</Unit>
+							<UnitDescription>(Z)</UnitDescription>
+							<ComplexIBBuffers>True</ComplexIBBuffers>
+							<DefaultComplexPresent>1</DefaultComplexPresent>
+							<SRDiv IsDefault="True">1</SRDiv>
+							<Used>True</Used>
+							<Index>Math;1;0;AmplFFT</Index>
+							<DataType>5</DataType>
+							<Async>True</Async>
+							<BitsLog>16</BitsLog>
+							<BitCount>0</BitCount>
+							<Properties>
+								<Property Name="Module" Type="String">
+									<IsPublic>True</IsPublic>
+									<Value>FFT</Value>
+								</Property>
+								<Property Name="Spectrum" Type="String">
+									<IsPublic>True</IsPublic>
+									<Value>Peak</Value>
+								</Property>
+								<Property Name="Window" Type="String">
+									<IsPublic>True</IsPublic>
+									<Value>Blackman</Value>
+								</Property>
+								<Property Name="Calculation" Type="String">
+									<IsPublic>True</IsPublic>
+									<Value>Block based</Value>
+								</Property>
+								<Property Name="Overlap" Type="String">
+									<IsPublic>True</IsPublic>
+									<Value>0 %</Value>
+								</Property>
+								<Property Name="Weighting" Type="String">
+									<IsPublic>True</IsPublic>
+									<Value>Z</Value>
+								</Property>
+								<Property Name="Lines" Type="String">
+									<IsPublic>True</IsPublic>
+									<Value>20000</Value>
+								</Property>
+								<Property Name="Df" Type="String">
+									<IsPublic>True</IsPublic>
+									<Value>0.5 Hz</Value>
+								</Property>
+								<Property Name="Block duration" Type="String">
+									<IsPublic>True</IsPublic>
+									<Value>2 s</Value>
+								</Property>
+							</Properties>
+							<ExpectedAsyncRate>0.5</ExpectedAsyncRate>
+							<ArrayInfo>
+								<Axis Index="0">
+									<Size>20000</Size>
+									<Name>Freq</Name>
+									<Unit>Hz</Unit>
+									<AxisType>2</AxisType>
+									<Prec>2</Prec>
+									<ValuesType>1</ValuesType>
+									<Step>0.5</Step>
+									<ViewInfo>
+										<DisplayDefaultMin>1</DisplayDefaultMin>
+										<DisplayDefaultMax>7812.5</DisplayDefaultMax>
+									</ViewInfo>
+								</Axis>
+								<StoreIB>True</StoreIB>
+							</ArrayInfo>
+							<ViewInfo>
+								<GraphTitle>FFT 1</GraphTitle>
+								<Graph2DType>2</Graph2DType>
+								<PeakSearch>1</PeakSearch>
+							</ViewInfo>
+							<ResamplerType>-1</ResamplerType>
+							<DefaultMax>19.6078434294345</DefaultMax>
+							<DefaultMin>0</DefaultMin>
+						</OutputChannel>
+						<OutputChannel Descr="CursorChannel">
+							<DisplayColor>#00FF00</DisplayColor>
+							<Name>CursorChannel</Name>
+							<Description>CursorChannel</Description>
+							<Unit></Unit>
+							<ComplexIBBuffers>True</ComplexIBBuffers>
+							<DefaultComplexPresent>1</DefaultComplexPresent>
+							<SRDiv IsDefault="True">1</SRDiv>
+							<Used>True</Used>
+							<Index>Math;1;0;CursorChannel</Index>
+							<DataType>5</DataType>
+							<BitsLog>16</BitsLog>
+							<SingleValue>True</SingleValue>
+							<ControlChannel>True</ControlChannel>
+							<BitCount>0</BitCount>
+							<LogicalName>CursorChannel</LogicalName>
+							<Shown>False</Shown>
+							<ResamplerType>-1</ResamplerType>
+							<DefaultMax>1</DefaultMax>
 							<DefaultMin>0</DefaultMin>
 						</OutputChannel>
 					</Module>
@@ -664,11 +832,14 @@
 				<Trigger>
 					<DataStoreMode>2</DataStoreMode>
 					<PostTimeUsed>True</PostTimeUsed>
-					<PostTime>2000</PostTime>
+					<PostTime>3000</PostTime>
 				</Trigger>
+				<MultifileOptions Version="2">
+					<BaseName>Test</BaseName>
+				</MultifileOptions>
 			</Storing>
 			<UserInterface>
-				<SelectedSetupTab>GeneralSetupTabSheet</SelectedSetupTab>
+				<SelectedSetupTab>AISetupSheet</SelectedSetupTab>
 				<Displays>
 					<Images></Images>
 					<CurrentDisplayFrames>0</CurrentDisplayFrames>
@@ -694,18 +865,154 @@
 									<Markers></Markers>
 									<XAxis>
 										<Ticks>
-											<Min>-5.8038</Min>
-											<Max>4.1962</Max>
+											<Min>56.6016</Min>
+											<Max>66.6016</Max>
 										</Ticks>
 									</XAxis>
 									<YAxis>
 										<Ticks>
-											<Min>-10</Min>
-											<Max>10</Max>
+											<Min>-0.217944025993347</Min>
+											<Max>0.232245534658432</Max>
 										</Ticks>
 										<Axis Index="1">
-											<Min>-10</Min>
-											<Max>10</Max>
+											<Min>-0.217944025993347</Min>
+											<Max>0.232245534658432</Max>
+										</Axis>
+									</YAxis>
+								</Recorder>
+								<Recorder Index="1">
+									<InputSlot Index="0">
+										<InputConnection>I[7000;0;0;0]|N[AI 1/RMS]</InputConnection>
+									</InputSlot>
+									<DefaultCaption>Recorder 2</DefaultCaption>
+									<Markers></Markers>
+									<XAxis>
+										<Ticks>
+											<Min>56.6016</Min>
+											<Max>66.6016</Max>
+										</Ticks>
+									</XAxis>
+									<YAxis>
+										<Ticks>
+											<Min>0.0536073818802834</Min>
+											<Max>0.0559848956763744</Max>
+										</Ticks>
+										<Axis Index="1">
+											<Min>0.0536073818802834</Min>
+											<Max>0.0559848956763744</Max>
+										</Axis>
+									</YAxis>
+								</Recorder>
+								<Recorder Index="2">
+									<InputSlot Index="0">
+										<InputConnection>I[7000;0;0;4]|N[AI 1/PEAK]</InputConnection>
+									</InputSlot>
+									<DefaultCaption>Recorder 3</DefaultCaption>
+									<Markers></Markers>
+									<XAxis>
+										<Ticks>
+											<Min>56.6016</Min>
+											<Max>66.6016</Max>
+										</Ticks>
+									</XAxis>
+									<YAxis>
+										<Ticks>
+											<Min>0.174562901258469</Min>
+											<Max>0.241986498236656</Max>
+										</Ticks>
+										<Axis Index="1">
+											<Min>0.174562901258469</Min>
+											<Max>0.241986498236656</Max>
+										</Axis>
+									</YAxis>
+								</Recorder>
+								<Recorder Index="3">
+									<InputSlot Index="0">
+										<InputConnection>I[7000;0;0;5]|N[AI 1/PEAK-PEAK]</InputConnection>
+									</InputSlot>
+									<DefaultCaption>Recorder 4</DefaultCaption>
+									<Markers></Markers>
+									<XAxis>
+										<Ticks>
+											<Min>56.6016</Min>
+											<Max>66.6016</Max>
+										</Ticks>
+									</XAxis>
+									<YAxis>
+										<Ticks>
+											<Min>0.333080053329468</Min>
+											<Max>0.435509264469147</Max>
+										</Ticks>
+										<Axis Index="1">
+											<Min>0.333080053329468</Min>
+											<Max>0.435509264469147</Max>
+										</Axis>
+									</YAxis>
+								</Recorder>
+								<Recorder Index="4">
+									<InputSlot Index="0">
+										<InputConnection>I[7000;0;0;6]|N[AI 1/CREST FACTOR]</InputConnection>
+									</InputSlot>
+									<DefaultCaption>Recorder 5</DefaultCaption>
+									<Markers></Markers>
+									<XAxis>
+										<Ticks>
+											<Min>56.6016</Min>
+											<Max>66.6016</Max>
+										</Ticks>
+									</XAxis>
+									<YAxis>
+										<Ticks>
+											<Max>19.6078434294345</Max>
+										</Ticks>
+										<Axis Index="1">
+											<Max>19.6078434294345</Max>
+										</Axis>
+									</YAxis>
+								</Recorder>
+								<Recorder Index="5">
+									<InputSlot Index="0">
+										<InputConnection>I[7000;0;0;8]|N[AI 1/VAR]</InputConnection>
+									</InputSlot>
+									<DefaultCaption>Recorder 6</DefaultCaption>
+									<Markers></Markers>
+									<XAxis>
+										<Ticks>
+											<Min>56.6016</Min>
+											<Max>66.6016</Max>
+										</Ticks>
+									</XAxis>
+									<YAxis>
+										<Ticks>
+											<Min>0.00287495413795114</Min>
+											<Max>0.00385768432170153</Max>
+										</Ticks>
+										<Axis Index="1">
+											<Min>0.00287495413795114</Min>
+											<Max>0.00385768432170153</Max>
+										</Axis>
+									</YAxis>
+								</Recorder>
+								<Recorder Index="6">
+									<InputSlot Index="0">
+										<InputConnection>I[7000;1;1000]|N[FFT block count]</InputConnection>
+									</InputSlot>
+									<DefaultCaption>Recorder 7</DefaultCaption>
+									<Markers></Markers>
+									<XAxis>
+										<Ticks>
+											<Min>56.6016</Min>
+											<Max>66.6016</Max>
+										</Ticks>
+									</XAxis>
+									<YAxis>
+										<Ticks>
+											<Min>21.7455997467041</Min>
+											<Max>26</Max>
+										</Ticks>
+										<Axis Index="1">
+											<Min>21.7455997467041</Min>
+											<Max>26</Max>
 										</Axis>
 									</YAxis>
 								</Recorder>
