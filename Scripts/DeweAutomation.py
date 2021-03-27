@@ -3,25 +3,27 @@ import psutil
 from os.path import join
 from datetime import datetime
 
+
 def isRunning():
     isReady = False
-    for proc in psutil.process_iter(['name']):
-        if proc.info['name'] == 'DEWEsoft.exe':
-            print('Dewesoft app already running')
+    for proc in psutil.process_iter(["name"]):
+        if proc.info["name"] == "DEWEsoft.exe":
+            print("Dewesoft app already running")
             isReady = True
     return isReady
 
+
 def deweAuto(dw, FileName, DataDir):
-    # Routine ____________________________________________________________________
+    # Routine ________________________________________________________________
     dw.Measure()
-    print('Starting Storing')
-    dw.StartStoring(FileName + '.dxd')
+    print("Starting Storing")
+    dw.StartStoring(FileName + ".dxd")
     dw.ManualStart()
 
     time.sleep(1)
 
     finished = False
-    while not(finished):
+    while not (finished):
         time.sleep(1)
         # Check if the last event is "Storing stopped"
         nEvents = dw.EventList.Count - 1
@@ -30,18 +32,22 @@ def deweAuto(dw, FileName, DataDir):
             finished = True
 
     dw.Stop()
+    print("Measure completed")
 
     # Calculate offline math (FFT, statistics, etc...)
     dw.Analyze()
     dw.OfflineCalc.Calculate()
-
+    
+    print("Exporting data")
     try:
-        print("Exporting data")
-        dw.ExportData(7,2,join(DataDir,FileName))
-    except:
+        dw.ExportData(7, 2, join(DataDir, FileName))
+    except Exception as e:
         print("Exporting failed")
+        print("Exception: " + str(e))
+    else:
+        print("Data exported successfully")
     dw.Measure()
-    print("Measure completed")
+
 
 def DeweInit(dw, data_dir, setup_file):
     print("Initializing Dewesoft... ")
@@ -49,7 +55,7 @@ def DeweInit(dw, data_dir, setup_file):
     dw.Init()
     dw.Enabled = 1
     dw.Visible = 1
-    print('done.')
+    print("done.")
 
     # set window dimensions
     dw.Top = 0
@@ -60,7 +66,7 @@ def DeweInit(dw, data_dir, setup_file):
     # build channel list
     dw.Data.BuildChannelList()
 
-    with open(setup_file, 'r') as file:
+    with open(setup_file, "r") as file:
         data = file.read()
     file.close
 
@@ -73,10 +79,11 @@ def DeweInit(dw, data_dir, setup_file):
         print("Make sure to use the production configuration file")
         return
 
+
 def getMeasName():
     MeasName = str(datetime.now())
-    MeasName = MeasName[:MeasName.find('.')]
-    MeasName = MeasName.replace(':','')
-    MeasName = MeasName.replace('-','')
-    MeasName = MeasName.replace(' ','')
+    MeasName = MeasName[: MeasName.find(".")]
+    MeasName = MeasName.replace(":", "")
+    MeasName = MeasName.replace("-", "")
+    MeasName = MeasName.replace(" ", "")
     return MeasName
