@@ -15,8 +15,9 @@ def isRunning():
 
 def deweAuto(dw, FileName, DataDir):
     # Routine ________________________________________________________________
+    print("\n-------Dewesoft-------")
     dw.Measure()
-    print("Starting Storing")
+    print("Start storing")
     dw.StartStoring(FileName + ".dxd")
     dw.ManualStart()
 
@@ -25,7 +26,7 @@ def deweAuto(dw, FileName, DataDir):
     finished = False
     while not (finished):
         time.sleep(1)
-        # Check if the last event is "Storing stopped"
+        # Check if the last event is "Storing stopped" (type 2)
         nEvents = dw.EventList.Count - 1
         if dw.EventList.Item(nEvents).Type_ == 2:
             print("Done")

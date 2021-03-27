@@ -4,7 +4,7 @@ Utilities to create a dictionary based data structure from the Dewesoft-exported
 files. The data structure is then coverted to the json format. 
 
 Author: Armenante Davide
-Last update: 26/3/2021
+Last update: 27/3/2021
 ____________________________________________________________________________
 """
 
@@ -134,9 +134,7 @@ def build_KPI_dictionary(file_dir):
     time_file_list = [
         f
         for f in listdir(file_dir)
-        if isfile(join(file_dir, f)) 
-        and not (f.find("_") == -1) 
-        and f.find("FFT") == -1
+        if isfile(join(file_dir, f)) and not (f.find("_") == -1) and f.find("FFT") == -1
     ]
 
     # IMPORTANT: for the future updates it is mandatory to iterate through
@@ -149,7 +147,7 @@ def build_KPI_dictionary(file_dir):
         file_path = join(file_dir, f)
         data = get_data(file_path)
         if data is not (None):
-            KPI_names = f[f.find("_") + 1 : f.find(".")].replace(" ", "_")
+            KPI_names = f[f.find("_") + 1: f.find(".")].replace(" ", "_")
             time_dictionary = {
                 "Dt": round((data[1, 0] - data[0, 0]) * 1000, 2),
                 "data": data[:, 1].tolist(),
@@ -160,10 +158,7 @@ def build_KPI_dictionary(file_dir):
     # Get the sensor data from the csv table
     try:
         sensor_table = read_csv("SensorTable.csv")
-        sensor_spec = sensor_table.query("Dewe_name == " 
-                                         + '"' 
-                                         + sensor_name 
-                                         + '"')
+        sensor_spec = sensor_table.query("Dewe_name == " + '"' + sensor_name + '"')
     except KeyError:
         print("Sensor not present in the table")
         sensor_dictionary = {}
@@ -191,8 +186,7 @@ def build_KPI_dictionary(file_dir):
 
     # Build main dictionary
     # Build main dictionary
-    retrieved_date = datetime.strptime(meta_data["Start time"], 
-                                       "%m/%d/%Y %H:%M:%S.%f")
+    retrieved_date = datetime.strptime(meta_data["Start time"], "%m/%d/%Y %H:%M:%S.%f")
     delta = timedelta(milliseconds=int(meta_data["Post time"]))
     end_time = retrieved_date + delta
 
@@ -207,7 +201,7 @@ def build_KPI_dictionary(file_dir):
         "AET": end_time.isoformat(),
         "SF": meta_data["Sample rate"],
         "PT": meta_data["Post time"],
-        "Type": "KPI"
+        "Type": "KPI",
     }
     return KPI_dict
 
@@ -248,17 +242,14 @@ def build_RAW_dictionary(file_dir):
     meta_data = get_metadata(file_path)
 
     # Build main dictionary
-    retrieved_date = datetime.strptime(meta_data["Start time"], 
-                                       "%m/%d/%Y %H:%M:%S.%f")
+    retrieved_date = datetime.strptime(meta_data["Start time"], "%m/%d/%Y %H:%M:%S.%f")
     delta = timedelta(milliseconds=int(meta_data["Post time"]))
     end_time = retrieved_date + delta
 
     json_id = "RAW-" + get_shot(retrieved_date.isoformat())
 
     # Build FFT dictionary
-    fft_dict = {"Df": 0.5, 
-                "Window": "Blackman", 
-                "spectrum": parse_data(fft_file_path)}
+    fft_dict = {"Df": 0.5, "Window": "Blackman", "spectrum": parse_data(fft_file_path)}
     # Build sensor dictionary
     sensor_table = read_csv("SensorTable.csv")
     sensor_spec = sensor_table.query("Dewe_name == " + '"' + sensor_name + '"')
@@ -282,7 +273,7 @@ def build_RAW_dictionary(file_dir):
         "AET": end_time.isoformat(),
         "SF": int(meta_data["Sample rate"]),
         "PT": int(meta_data["Post time"]),
-        "Type": "RAW"
+        "Type": "RAW",
     }
     return RAW_dict
 
@@ -327,16 +318,6 @@ def get_target_path(couch_dir, date):
 def update_history_table(new_file_name, loaded):
     ht = pd.read_csv("history_table.csv")
 
-    new_file_entry = {"file_name": new_file_name, 
-                      "couch_db": False, 
-                      "influx_db": False}
-
-    # Check if the file exist in the table
-    query = ht[(ht["file_name"] == new_file_name)]
-    if query.empty:
-        ht = ht.append(new_file_entry, ignore_index=True)
-        ht.to_csv("history_table.csv", index=False)
-
     # Check if the file has already been loaded on couchDB
     query = ht[(ht["file_name"] == new_file_name) & (ht["couch_db"] == False)]
     if not query.empty:
@@ -367,15 +348,14 @@ def load_kpi(KPI_dict, config, KPI_file_name):
         return False
     else:
         if resp.status_code == 409:
-            print("File already in CouchDB")
+            print(KPI_file_name + " already in CouchDB")
             return True
         elif resp.status_code == 201:
-            print("CouchDB KPI loading successful: " + str(resp.status_code))
+            print(KPI_file_name + " loading successful: " + str(resp.status_code))
             return True
         else:
             print(resp.text)
-            print("Error, can't load the file on CouchDB: " 
-                  + str(resp.status_code))
+            print("Error, can't load the file on CouchDB: " + str(resp.status_code))
             return False
 
 
@@ -385,13 +365,14 @@ def load_raw(RAW_dict, config, RAW_file_name):
     couch_url = config["COUCHDB"]["couch_url"]
     couch_db = config["COUCHDB"]["database"]
     shot = get_shot(RAW_dict["AST"])
-    
+
     RAW_file_name = "RAW-" + shot
     try:
         resp = requests.put(
             couch_url + "/" + couch_db + "/" + RAW_file_name,
             auth=HTTPBasicAuth(username, password),
             json=RAW_dict,
+            stream=True,
         )
 
     except:
@@ -399,16 +380,36 @@ def load_raw(RAW_dict, config, RAW_file_name):
         return False
     else:
         if resp.status_code == 409:
-            print("File already in CouchDB")
+            print(RAW_file_name + " already in CouchDB")
             return True
         elif resp.status_code == 201:
-            print("CouchDB RAW loading successful: " + str(resp.status_code))
+            print(RAW_file_name + " loading successful: " + str(resp.status_code))
             return True
         else:
             print(resp.text)
-            print("Error, can't load the file on CouchDB: " 
-                  + str(resp.status_code))
+            print("Error, can't load the file on CouchDB: " + str(resp.status_code))
             return False
+
+
+def check_upload(file_name):
+    """Chech wether fhe file has been already uploaded"""
+
+    ht = pd.read_csv("history_table.csv")
+
+    new_file_entry = {"file_name": file_name, "couch_db": False, "influx_db": False}
+
+    # Check if the file exist in the table
+    query = ht[(ht["file_name"] == file_name)]
+    if query.empty:
+        ht = ht.append(new_file_entry, ignore_index=True)
+        ht.to_csv("history_table.csv", index=False)
+
+    # Check if the file has already been loaded on couchDB
+    query = ht[(ht["file_name"] == file_name) & (ht["couch_db"] == False)]
+    if not query.empty:
+        return False
+    else:
+        return True
 
 
 def to_couchDB():
@@ -416,12 +417,11 @@ def to_couchDB():
     ConfigFile = "config.ini"
     config = configparser.ConfigParser()
     config.read(ConfigFile)
-    
+
     couch_url = config["COUCHDB"]["couch_url"]
     data_dir = config["DEWESOFT"]["data_dir"]
 
-    dewe_folder_list = [f for f in listdir(data_dir) 
-                        if isdir(join(data_dir, f))]
+    dewe_folder_list = [f for f in listdir(data_dir) if isdir(join(data_dir, f))]
 
     if dewe_folder_list == []:
         print("There are no data acquired by the DAQ")
@@ -439,9 +439,6 @@ def to_couchDB():
         KPI_dict = build_KPI_dictionary(dewe_data_path)
         RAW_dict = build_RAW_dictionary(dewe_data_path)
 
-        loaded_KPI = False
-        loaded_RAW = False
-
         shot = get_shot(KPI_dict["AST"])
         if shot is None:
             return
@@ -449,13 +446,20 @@ def to_couchDB():
         KPI_file_name = "KPI-" + shot
         RAW_file_name = "RAW-" + shot
 
+        # Check if the file has been already uploaded
+        loaded_KPI = check_upload(KPI_file_name)
+        loaded_RAW = check_upload(RAW_file_name)
+
         if KPI_dict is not (None) and RAW_dict is not (None):
-            result = load_kpi(KPI_dict, config, KPI_file_name)
-            if result:
-                loaded_KPI = True
-            result = load_raw(RAW_dict, config, RAW_file_name)
-            if result:
-                loaded_RAW = True
+            if not loaded_KPI:
+                result = load_kpi(KPI_dict, config, KPI_file_name)
+                if result:
+                    loaded_KPI = True
+
+            if not loaded_RAW:
+                result = load_raw(RAW_dict, config, RAW_file_name)
+                if result:
+                    loaded_RAW = True
 
         update_history_table(RAW_file_name, loaded_RAW)
         update_history_table(KPI_file_name, loaded_KPI)
