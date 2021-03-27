@@ -37,13 +37,15 @@ def deweAuto(dw, FileName, DataDir):
     # Calculate offline math (FFT, statistics, etc...)
     dw.Analyze()
     dw.OfflineCalc.Calculate()
-
+    
+    print("Exporting data")
     try:
-        print("Exporting data")
         dw.ExportData(7, 2, join(DataDir, FileName))
     except Exception as e:
         print("Exporting failed")
         print("Exception: " + str(e))
+    else:
+        print("Data exported successfully")
     dw.Measure()
 
 

@@ -31,6 +31,7 @@ def test_configFile():
         "couch_url",
         "username",
         "password",
+        "database",
     ]
     key_list = []
     for section in config:
@@ -59,6 +60,7 @@ def writeConfig():
     config["COUCHDB"]["couch_url"] = c_UrlE.get()
     config["COUCHDB"]["username"] = c_userE.get()
     config["COUCHDB"]["password"] = c_passE.get()
+    config["COUCHDB"]["database"] = c_dbE.get()
 
     with open(ConfigFile, "w") as f:
         config.write(f)
@@ -193,15 +195,20 @@ Curl.grid(row=13, column=0, sticky=W)
 c_UrlE = Entry(root, width=EntryLen)
 c_UrlE.grid(row=13, column=1, padx=20, pady=4, sticky=W)
 
+Cdb = Label(root, text="Database")
+Cdb.grid(row=14, column=0, sticky=W)
+c_dbE = Entry(root, width=EntryLen)
+c_dbE.grid(row=14, column=1, padx=20, pady=4, sticky=W)
+
 c_user = Label(root, text="Username")
-c_user.grid(row=14, column=0, sticky=W)
+c_user.grid(row=15, column=0, sticky=W)
 c_userE = Entry(root, width=EntryLen)
-c_userE.grid(row=14, column=1, padx=20, pady=4, sticky=W)
+c_userE.grid(row=15, column=1, padx=20, pady=4, sticky=W)
 
 c_pass = Label(root, text="Password")
-c_pass.grid(row=15, column=0, sticky=W)
+c_pass.grid(row=16, column=0, sticky=W)
 c_passE = Entry(root, width=EntryLen, show="\u2022")
-c_passE.grid(row=15, column=1, padx=20, pady=4, sticky=W)
+c_passE.grid(row=16, column=1, padx=20, pady=4, sticky=W)
 
 
 checkVar = BooleanVar()
@@ -242,7 +249,7 @@ checkVar.set(bool(config["INFLUXDB"]["auto_load"]))
 c_UrlE.insert(0, config["COUCHDB"]["couch_url"])
 c_userE.insert(0, config["COUCHDB"]["username"])
 c_passE.insert(0, config["COUCHDB"]["password"])
-
+c_dbE.insert(0, config["COUCHDB"]["database"])
 
 DataDir = normpath(config["DEWESOFT"]["data_dir"])
 SetupFile = config["DEWESOFT"]["setup_file"]

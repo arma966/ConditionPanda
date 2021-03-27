@@ -5,9 +5,22 @@ from requests.auth import HTTPBasicAuth
 from datetime import datetime, timedelta
 import configparser
 from influxdb_client.client.write_api import ASYNCHRONOUS
+from urllib.request import urlopen
 
-
-def test_influx_connection(client, bucket_name, org_name):
+def test_connection(client, bucket_name, org_name, host):
+    ''' Test connection avaliability with Influx and CouchDB
+        host[0]: Influx URL
+        host[1]: Couch URL
+    '''
+    
+    influx_avaliable = connection_avaliable(host=host[0], 
+                                    host_name="InfluxDB")
+    couch_avaliable = connection_avaliable(host=host[1], 
+                                    host_name="CouchDB")
+    
+    if not influx_avaliable or not couch_avaliable: return
+    
+    # Test organization and bucket existence in influxDB
     buckets_client = BucketsApi(client)
     bucket_names = []
     bucket_obj = buckets_client.find_buckets().to_dict()
@@ -47,6 +60,8 @@ def upload_history_table(new_file_name):
 
 
 def get_file_to_load():
+    ''' Get the files to load on influx based on hystory table '''
+    
     file_to_load = []
     ht = pd.read_csv("history_table.csv")
 
@@ -54,6 +69,8 @@ def get_file_to_load():
     query = ht[(ht["influx_db"] == False) & 
                (ht["file_name"].str.contains("KPI"))]
     file_to_load = query["file_name"].to_list()
+    
+    print(str(len(file_to_load)) + " files to load")
     return file_to_load
 
 
@@ -118,35 +135,56 @@ def generate_lines(data_file, config):
 
     return data_points
 
-
+def connection_avaliable(host, host_name):
+    try:
+        urlopen(host, timeout=2)
+        return True
+    except Exception as e:
+        print(host_name + " connection not avaliable")
+        print(str(e))
+        return False
+    
 def to_influx():
+    print("\n------Influx Upload------")
     ConfigFile = "config.ini"
     config = configparser.ConfigParser()
     config.read(ConfigFile)
-
-    client = InfluxDBClient(
-        url=config["INFLUXDB"]["influxurl"], token=config["INFLUXDB"]["token"]
-    )
+    
+    host = [config["INFLUXDB"]["influxurl"],
+            config["COUCHDB"]["couch_url"]]
+    
     bucket_name = config["INFLUXDB"]["kpibucket"]
     org_name = config["INFLUXDB"]["org"]
+    
+    username = config["COUCHDB"]["username"]
+    password = config["COUCHDB"]["password"]
+    couch_db_url = config["COUCHDB"]["couch_url"] \
+                + "/"+config["COUCHDB"]["database"]+"/"
+                
+    client = InfluxDBClient(
+        url=host[0], token=config["INFLUXDB"]["token"]
+    )
 
     write_client = client.write_api(write_options=ASYNCHRONOUS)
-    if not test_influx_connection(client, bucket_name, org_name):
+    if not test_connection(client, bucket_name, org_name, host): 
         return
 
     file_to_load = get_file_to_load()
-    username = config["COUCHDB"]["username"]
-    password = config["COUCHDB"]["password"]
-    couch_url = config["COUCHDB"]["couch_url"] + "/students/"
-
+    
+    connection_lost = False
     for file in file_to_load:
+        if connection_lost:
+            print("Connection lost")
+            return
         try:
             resp = requests.get(
-                couch_url + file, auth=HTTPBasicAuth(username, password)
+                couch_db_url + file, auth=HTTPBasicAuth(username, password)
             )
         except Exception as e:
+            print("File: " + file)
             print("Can't retrieve the data from CouchDB, an exception occurred")
             print("Exception: " + str(e))
+            connection_lost = True
         else:
             if resp.status_code != 200:
                 print(resp.text)
@@ -161,6 +199,7 @@ def to_influx():
                     write_client.write(bucket_name, org_name, data_points)
                 except Exception as e:
                     print("Exception: " + str(e))
+                    connection_lost = True
                 else:
                     print(str(file) + " loaded successfully")
                     upload_history_table(file)

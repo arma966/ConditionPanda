@@ -20,6 +20,17 @@ import requests
 from requests.auth import HTTPBasicAuth
 import pandas as pd
 import re
+from urllib.request import urlopen
+
+
+def connection_avaliable(host, host_name):
+    try:
+        urlopen(host, timeout=2)
+        return True
+    except Exception as e:
+        print(host_name + " connection not avaliable")
+        print(str(e))
+        return False
 
 
 def read_file(file_name):
@@ -342,11 +353,11 @@ def load_kpi(KPI_dict, config, KPI_file_name):
     password = config["COUCHDB"]["password"]
     couch_url = config["COUCHDB"]["couch_url"]
     shot = get_shot(KPI_dict["AST"])
-
+    couch_db = config["COUCHDB"]["database"]
     KPI_file_name = "KPI-" + shot
     try:
         resp = requests.put(
-            couch_url + "/students/" + KPI_file_name,
+            couch_url + "/" + couch_db + "/" + KPI_file_name,
             auth=HTTPBasicAuth(username, password),
             json=KPI_dict,
         )
@@ -372,12 +383,13 @@ def load_raw(RAW_dict, config, RAW_file_name):
     username = config["COUCHDB"]["username"]
     password = config["COUCHDB"]["password"]
     couch_url = config["COUCHDB"]["couch_url"]
+    couch_db = config["COUCHDB"]["database"]
     shot = get_shot(RAW_dict["AST"])
-
+    
     RAW_file_name = "RAW-" + shot
     try:
         resp = requests.put(
-            couch_url + "/students/" + RAW_file_name,
+            couch_url + "/" + couch_db + "/" + RAW_file_name,
             auth=HTTPBasicAuth(username, password),
             json=RAW_dict,
         )
@@ -400,10 +412,12 @@ def load_raw(RAW_dict, config, RAW_file_name):
 
 
 def to_couchDB():
+    print("\n------CouchDB Upload------")
     ConfigFile = "config.ini"
     config = configparser.ConfigParser()
     config.read(ConfigFile)
-
+    
+    couch_url = config["COUCHDB"]["couch_url"]
     data_dir = config["DEWESOFT"]["data_dir"]
 
     dewe_folder_list = [f for f in listdir(data_dir) 
@@ -418,6 +432,8 @@ def to_couchDB():
     | through it and upload the data to couchDB
     """
     for f in dewe_folder_list:
+        if not connection_avaliable(host=couch_url, host_name="CouchDB"):
+            return
         dewe_data_path = join(data_dir, f)
 
         KPI_dict = build_KPI_dictionary(dewe_data_path)
@@ -446,8 +462,11 @@ def to_couchDB():
 
         if loaded_KPI and loaded_RAW:
             # Remove dewesoft files
-            rmtree(dewe_data_path)
-            remove(dewe_data_path + ".dxd")
+            try:
+                rmtree(dewe_data_path)
+                remove(dewe_data_path + ".dxd")
+            except FileNotFoundError:
+                print(dewe_data_path + ".dxd" + " already removed")
 
 
 if __name__ == "__main__":
