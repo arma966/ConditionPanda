@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import configparser
 from influxdb_client.client.write_api import ASYNCHRONOUS
 from urllib.request import urlopen
+import telegramUtils as tu
 
 def test_connection(client, bucket_name, org_name, host):
     ''' Test connection avaliability with Influx and CouchDB
@@ -202,6 +203,7 @@ def to_influx():
                     connection_lost = True
                 else:
                     print(str(file) + " loaded successfully")
+                    tu.send_telegram(str(file) + " loaded successfully")
                     upload_history_table(file)
                     
 

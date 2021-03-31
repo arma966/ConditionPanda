@@ -2,7 +2,7 @@ import time
 import psutil
 from os.path import join
 from datetime import datetime
-
+import telegramUtils as tu
 
 def isRunning():
     isReady = False
@@ -18,6 +18,7 @@ def deweAuto(dw, FileName, DataDir):
     print("\n-------Dewesoft-------")
     dw.Measure()
     print("Start storing")
+    tu.send_telegram("Start storing")
     dw.StartStoring(FileName + ".dxd")
     dw.ManualStart()
 
@@ -27,12 +28,25 @@ def deweAuto(dw, FileName, DataDir):
     while not (finished):
         time.sleep(1)
         # Check if the last event is "Storing stopped" (type 2)
-        nEvents = dw.EventList.Count - 1
-        if dw.EventList.Item(nEvents).Type_ == 2:
+        
+        for _ in range(20):
+            try:
+                nEvents = dw.EventList.Count - 1
+                last_event = dw.EventList.Item(nEvents).Type_
+            except Exception as e:
+                print("Exception com error")
+                time.sleep(1)
+        if last_event == 2:
             print("Done")
             finished = True
-
-    dw.Stop()
+            
+            
+    for _ in range(10):
+        if dw.StoreEngine.Storing is True:
+            print("-------------Storing True -------------------")
+            dw.Stop()
+            time.sleep(0.5)
+    
     print("Measure completed")
 
     # Calculate offline math (FFT, statistics, etc...)
@@ -47,6 +61,7 @@ def deweAuto(dw, FileName, DataDir):
         print("Exception: " + str(e))
     else:
         print("Data exported successfully")
+        tu.send_telegram("Data exported successfully")
     dw.Measure()
 
 
@@ -74,7 +89,7 @@ def DeweInit(dw, data_dir, setup_file):
     dw.LoadSetupFromXML(data)
 
     try:
-        dw.SetMaindata_dir(data_dir)
+        dw.SetMainDataDir(data_dir)
     except AttributeError:
         print("The configuration Dewesoft directory doesn't exist.")
         print("Make sure to use the production configuration file")

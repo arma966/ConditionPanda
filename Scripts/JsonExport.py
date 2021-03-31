@@ -21,7 +21,7 @@ from requests.auth import HTTPBasicAuth
 import pandas as pd
 import re
 from urllib.request import urlopen
-
+import telegramUtils as tu
 
 def connection_avaliable(host, host_name):
     try:
@@ -352,6 +352,7 @@ def load_kpi(KPI_dict, config, KPI_file_name):
             return True
         elif resp.status_code == 201:
             print(KPI_file_name + " loading successful: " + str(resp.status_code))
+            tu.send_telegram(KPI_file_name + " loading successful")
             return True
         else:
             print(resp.text)
@@ -383,6 +384,7 @@ def load_raw(RAW_dict, config, RAW_file_name):
             print(RAW_file_name + " already in CouchDB")
             return True
         elif resp.status_code == 201:
+            tu.send_telegram(RAW_file_name + " loading successful")
             print(RAW_file_name + " loading successful: " + str(resp.status_code))
             return True
         else:

@@ -1,0 +1,13 @@
+Data info
+File name: C:\Users\LattePanda\Documents\ConditionPanda\Scripts\AutomationData\LattePanda20210331154216.dxd
+Start time: 3/31/2021 15:42:18.000
+Number of channels: 1
+Sample rate: 5000
+Store type: fast on trigger
+Post time: 3000
+
+
+Data1
+
+Time (s),FFT block count (counts),
+2.0000,1.00000000
