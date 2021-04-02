@@ -57,8 +57,8 @@ def deweAuto(dw, FileName, DataDir):
     try:
         dw.ExportData(7, 2, join(DataDir, FileName))
     except Exception as e:
-        print("Exporting failed")
-        print("Exception: " + str(e))
+        message = "Exporting failed\n Exception: {}"
+        print(message.format(e))
     else:
         print("Data exported successfully")
         tu.send_telegram("Data exported successfully")
@@ -71,7 +71,7 @@ def DeweInit(dw, data_dir, setup_file):
     dw.Init()
     dw.Enabled = 1
     dw.Visible = 1
-    print("done.")
+    print("Done.")
 
     # set window dimensions
     dw.Top = 0

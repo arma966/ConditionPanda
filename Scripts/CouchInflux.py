@@ -141,8 +141,8 @@ def connection_avaliable(host, host_name):
         urlopen(host, timeout=2)
         return True
     except Exception as e:
-        print(host_name + " connection not avaliable")
-        print(str(e))
+        message = "{} connection not avaliable\n Exception: {}"
+        print(message.format(host_name,e))
         return False
     
 def to_influx():
@@ -182,17 +182,17 @@ def to_influx():
                 couch_db_url + file, auth=HTTPBasicAuth(username, password)
             )
         except Exception as e:
-            print("File: " + file)
-            print("Can't retrieve the data from CouchDB, an exception occurred")
-            print("Exception: " + str(e))
+            message = "File: {}\nCan't retrieve the data from CouchDB, \
+                        an exception occurred\nException: {}"
+            print(message.format(file,e))
+            tu.send_telegram(message.format(file,e))
             connection_lost = True
         else:
             if resp.status_code != 200:
-                print(resp.text)
-                print(
-                    "Can't retrieve the data from CouchDB, status code: "
-                    + str(resp.status_code)
-                )
+                message = "{}\n Can't retrieve the data from CouchDB, status \
+                            code: {}" 
+                print(message.format(resp.text,resp.status_code))
+                tu.send_telegram(message.format(resp.text,resp.status_code))
             else:
                 print("Data retrieved from CouchDB")
                 data_points = generate_lines(resp.json(), config)
@@ -202,9 +202,10 @@ def to_influx():
                     print("Exception: " + str(e))
                     connection_lost = True
                 else:
-                    print(str(file) + " loaded successfully")
-                    tu.send_telegram(str(file) + " loaded successfully")
                     upload_history_table(file)
+                    message = "{} loaded successfully in InfluxDB"
+                    print(message.format(file))
+                    tu.send_telegram(message.format(file))
                     
 
 

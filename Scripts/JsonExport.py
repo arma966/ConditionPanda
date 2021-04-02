@@ -166,7 +166,7 @@ def build_KPI_dictionary(file_dir):
         return None
     except FileNotFoundError:
         print(
-            "Make sure the sensor table file and the python script are in the same directory"
+            "Make sure d4the sensor table file and the python script are in the same directory"
         )
         sensor_dictionary = {}
         sensor_dictionary["KPI"] = KPI_dict
@@ -345,18 +345,23 @@ def load_kpi(KPI_dict, config, KPI_file_name):
 
     except:
         print("Can't load the file on CouchDB, an exception occurred")
+        tu.send_telegram("Can't load the file on CouchDB, an exception occurred")
         return False
     else:
         if resp.status_code == 409:
-            print(KPI_file_name + " already in CouchDB")
+            message = "{} already in CouchDB"
+            print(message.format(KPI_file_name))
             return True
         elif resp.status_code == 201:
-            print(KPI_file_name + " loading successful: " + str(resp.status_code))
-            tu.send_telegram(KPI_file_name + " loading successful")
+            message = "{} loading successfully in CouchDB"
+            print(message.format(KPI_file_name))
+            tu.send_telegram(message.format(KPI_file_name))
             return True
         else:
-            print(resp.text)
-            print("Error, can't load the file on CouchDB: " + str(resp.status_code))
+            message = "Error, can't load {} on CouchDB\n \
+                       Status code: {}\n \
+                       Response: {}"
+            print(message.format(KPI_file_name,resp.status_code,resp.text))
             return False
 
 
@@ -381,15 +386,19 @@ def load_raw(RAW_dict, config, RAW_file_name):
         return False
     else:
         if resp.status_code == 409:
-            print(RAW_file_name + " already in CouchDB")
+            message = "{} already in CouchDB"
+            print(message.format(RAW_file_name))
             return True
         elif resp.status_code == 201:
-            tu.send_telegram(RAW_file_name + " loading successful")
-            print(RAW_file_name + " loading successful: " + str(resp.status_code))
+            message = "{} loading successfully in CouchDB"
+            print(message.format(RAW_file_name))
+            tu.send_telegram(message.format(RAW_file_name))
             return True
         else:
-            print(resp.text)
-            print("Error, can't load the file on CouchDB: " + str(resp.status_code))
+            message = "Error, can't load {} on CouchDB\n \
+                       Status code: {}\n \
+                       Response: {}"
+            print(message.format(RAW_file_name,resp.status_code,resp.text))
             return False
 
 
@@ -398,7 +407,9 @@ def check_upload(file_name):
 
     ht = pd.read_csv("history_table.csv")
 
-    new_file_entry = {"file_name": file_name, "couch_db": False, "influx_db": False}
+    new_file_entry = {"file_name": file_name, 
+                      "couch_db": False, 
+                      "influx_db": False}
 
     # Check if the file exist in the table
     query = ht[(ht["file_name"] == file_name)]
@@ -472,7 +483,7 @@ def to_couchDB():
                 rmtree(dewe_data_path)
                 remove(dewe_data_path + ".dxd")
             except FileNotFoundError:
-                print(dewe_data_path + ".dxd" + " already removed")
+                print(dewe_data_path + ".dxd already removed")
 
 
 if __name__ == "__main__":
